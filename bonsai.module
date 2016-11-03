@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Bonsai feature.
+ */
+
+include_once 'bonsai.features.inc';
