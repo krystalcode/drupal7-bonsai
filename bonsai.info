@@ -110,3 +110,5 @@ features[variable][] = node_preview_bonsai_group_email
 features[variable][] = node_preview_bonsai_message_email
 features[variable][] = node_submitted_bonsai_group_email
 features[variable][] = node_submitted_bonsai_message_email
+features[variable][] = pathauto_node_bonsai_group_email_pattern
+features[variable][] = pathauto_node_bonsai_message_email_pattern

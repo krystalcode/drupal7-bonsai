@@ -340,5 +340,19 @@ function bonsai_strongarm() {
   $strongarm->value = 0;
   $export['node_submitted_bonsai_message_email'] = $strongarm;
 
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'pathauto_node_bonsai_group_email_pattern';
+  $strongarm->value = 'bonsai/groups/[node:nid]/[node:title]';
+  $export['pathauto_node_bonsai_group_email_pattern'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'pathauto_node_bonsai_message_email_pattern';
+  $strongarm->value = 'bonsai/messages/[node:nid]/[node:title]';
+  $export['pathauto_node_bonsai_message_email_pattern'] = $strongarm;
+
   return $export;
 }
