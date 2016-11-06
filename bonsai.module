@@ -6,3 +6,345 @@
 
 include_once 'bonsai.features.inc';
 include_once 'includes/bonsai.field_formatter.inc';
+
+// External dependencies.
+use Bonsai\Mailgun\Repository;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+
+// Internal dependencies.
+use Drupal\bonsai\Mailgun\MessageToNodeTransformer;
+
+/**
+ * @Issue(
+ *   "Define admin page for setting required system variables"
+ *   type="improvement"
+ *   priority="normal"
+ *   labels="administration, configuration"
+ * )
+ * @Issue(
+ *   "Throw exceptions when required configuration variables are not defined"
+ *   type="improvement"
+ *   priority="normal"
+ *   labels="configuration"
+ * )
+ * @Issue(
+ *   "Add a composer.json file for defining composer dependencies"
+ *   type="bug"
+ *   priority="normal"
+ * )
+ */
+
+
+/**
+ * Hooks.
+ */
+
+/**
+ * Implements hook_cron().
+ *
+ * Defines a cron item for regularly fetching new messages from the email
+ * service provider.
+ */
+function bonsai_cron() {
+  // Fetch new messages from the email service provider.
+  $domain     = variable_get('bonsai_domain');
+  $repository = bonsai_get_repository();
+  $messages   = $repository->getList(
+    array(
+      'domain' => $domain,
+      /**
+       * @Issue(
+       *   "Define the number of messages to fetch per cron run as a system
+       *   variable"
+       *   type="improvement"
+       *   priority="low"
+       *   labels="administration, configuration"
+       * )
+       */
+      'limit'  => 100,
+    )
+  );
+
+  if (empty($messages)) {
+    return;
+  }
+
+  $queue = DrupalQueue::get('bonsai_messages');
+
+  // Store each message to the queue for separately processing it later.
+  foreach ($messages as $message) {
+    if (empty($message)) {
+      continue;
+    }
+
+    // Do not reprocess messages that have already been stored as nodes.
+    /**
+     * @Issue(
+     *   "Use an EventSubscriber for filtering out messages that have already
+     *   been processed"
+     *   type="improvement"
+     *   priority="performance"
+     * )
+     */
+    $node_exists = _bonsai_email_message_exists($message);
+    if ($node_exists) {
+      return;
+    }
+
+    $queue->createItem($message);
+  }
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function bonsai_cron_queue_info() {
+  $items = array();
+
+  // Queue for processing newly fetched messages.
+  $items['bonsai_messages'] = array(
+    'worker callback' => '_bonsai_queue_worker__bonsai_messages',
+  );
+
+  // Queue for detecting the parents of an email. It may also be used to add a
+  // message to a new or existing conversation.
+  $items['bonsai_conversations'] = array(
+    'worker callback' => '_bonsai_queue_worker__bonsai_conversations',
+  );
+
+  return $items;
+}
+
+
+/**
+ * Public API.
+ */
+
+/**
+ * Get the client for the email service provider.
+ *
+ * The client is required for creating the repository for the email service
+ * provider. It could be created by a Service Container, but Drupal 7 does not
+ * have one. It may also be used to make direct requests to the service
+ * provider's API.
+ *
+ * Only Mailgun is supported at the moment, so we create and return the client
+ * directly.
+ */
+function bonsai_get_client() {
+  $api_key = variable_get('bonsai_mailgun_api_key');
+  return new \Mailgun\Mailgun($api_key);
+}
+
+/**
+ * Get the repository for the email service provider.
+ *
+ * The repository is used for fetching or sending email messages.
+ *
+ * Only Mailgun is supported at the moment, so we create and return the
+ * repository directly.
+ */
+function bonsai_get_repository() {
+  $api_key     = variable_get('bonsai_mailgun_api_key');
+  $client      = bonsai_get_client();
+  $dispatcher  = new EventDispatcher();
+  $transformer = new MessageToNodeTransformer();
+  $repository  = new Repository($client, $dispatcher, $api_key, $transformer);
+
+  return $repository;
+}
+
+
+/**
+ * Callbacks.
+ */
+
+/**
+ * Implements callback_queue_worker().
+ *
+ * Given a node entity wrapper that represents a message fetched from the email
+ * service provider, it prepares it and stores it as an email message node.
+ *
+ * @Issue(
+ *   "Do the full transformation from message to node during processing queue
+ *   items, instead of partly doing so on cron run"
+ *   type="improvement"
+ *   priority="low"
+ * )
+ */
+function _bonsai_queue_worker__bonsai_messages($node_wrapper) {
+  if (empty($node_wrapper)) {
+    return;
+  }
+
+  // Make sure that the message does not already exists. This shouldn't happen
+  // since we check before creating the queue item as well, but it is good to
+  // double check to prevent duplicate messages in the case of a regression bug.
+  $node_exists = _bonsai_email_message_exists($node_wrapper);
+  if ($node_exists) {
+    return;
+  }
+
+  /**
+   * @Issue(
+   *   "Detect and store users that correspond to sender and recipients"
+   *   type="bug"
+   *   priority="normal"
+   *   labels="data"
+   * )
+   */
+
+  // Detect if there is a parent email, and save its id in the appropriate
+  // field.
+  $parent_email_id = _bonsai_email_email_has_header($node_wrapper->bonsai_json->value(), 'In-Reply-To');
+
+  if ($parent_email_id) {
+    $parent_node_id = _bonsai_email_email_has_parent($parent_email_id);
+    if ($parent_node_id) {
+      $node_wrapper->bonsai_message_email_ref = $parent_node_id;
+    }
+  }
+
+  $node_wrapper->save();
+
+  // If the email has a parent, but a node does not already exist for the
+  // parent, we create a queue item for detecting it later. It may be that the
+  // parent email is in the queue and the corresponding node has not been
+  // created yet.
+  if ($parent_email_id && !$parent_node_id) {
+    $queue = DrupalQueue::get('bonsai_conversations');
+    $queue->createItem($node_wrapper->getIdentifier());
+  }
+}
+
+/**
+ * Implements callback_queue_worker().
+ *
+ * Given the id of an email message node, it detects if the node's email has a
+ * parent email that is stored as a node, and it stores it in the corresponding
+ * entity reference field that indicates parent relationship.
+ */
+function _bonsai_queue_worker__bonsai_conversations($node_id) {
+  $node         = node_load($node_id);
+  $node_wrapper = entity_metadata_wrapper('node', $node);
+
+  // Check if the node's email has a parent email.
+  $parent_email_id = _bonsai_email_email_has_header(
+    $node_wrapper->bonsai_json->value(),
+    'In-Reply-To'
+  );
+
+  // Nothing to do if the email does not have a parent. This shouldn't normally
+  // happen because we wouldn't put an email that doesn't have a parent in this
+  // queue, but it's good to double check in order to prevent errors in the case
+  // of a regression bug.
+  if (!$parent_email_id) {
+    return;
+  }
+
+  // Get the parent node, if it exists.
+  $parent_node_id = _bonsai_email_email_has_parent($parent_email_id);
+
+  // If the parent node exists, store it as a reference in the appropriate
+  // field.
+  if ($parent_node_id) {
+    $node_wrapper->bonsai_message_email_ref = $parent_node_id;
+    $node_wrapper->save();
+  }
+  // If the email has a parent, but a node does not exist for it yet, we
+  // create a queue item for detecting it later. It may be that the
+  // parent email is still in the queue and the corresponding node has not
+  // been created yet.
+  /**
+   * @Issue(
+   *   "Stop trying to repeatedly detect the parent email after a certain
+   *   period of time"
+   *   type="bug"
+   *   priority="low"
+   *   labels="cron, deadlock"
+   */
+  else {
+    $queue = DrupalQueue::get('bonsai_conversations');
+    $queue->createItem($node_wrapper->getIdentifier());
+  }
+}
+
+
+/**
+ * Functions for internal use.
+ */
+
+/**
+ * @Issue(
+ *   "Document functions for internal use"
+ *   type="improvement"
+ *   priority="low"
+ *   labels="documentation"
+ * )
+ */
+
+function _bonsai_email_message_exists($node_wrapper) {
+  // The Bonsai library will return a NULL value when fetching emails older than
+  // 3 days. Detect that and do nothing to avoid errors, even though this
+  // function is not/should not be called in such cases.
+  if (empty($node_wrapper)) {
+    return;
+  }
+
+  $email_id = $node_wrapper->bonsai_email_id->value();
+
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'bonsai_message_email')
+    ->fieldCondition('bonsai_email_id', 'value', $email_id)
+    ->range(0, 1)
+  ;
+  $result = $query->execute();
+
+  if (empty($result['node'])) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+function _bonsai_email_trim_email_id($email_id) {
+  return trim($email_id, '<>');
+}
+
+function _bonsai_email_email_has_parent($email_id) {
+  $email_id = _bonsai_email_trim_email_id($email_id);
+
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'bonsai_message_email')
+    ->fieldCondition('bonsai_email_id', 'value', $email_id)
+    ->range(0, 1)
+  ;
+  $result = $query->execute();
+
+  if (empty($result['node'])) {
+    return FALSE;
+  }
+
+  $node = current($result['node']);
+  return $node->nid;
+}
+
+function _bonsai_email_email_has_header($email_json, $header) {
+  $message = json_decode($email_json);
+
+  if (empty($message->{'message-headers'})) {
+    return FALSE;
+  }
+
+  foreach ($message->{'message-headers'} as $message_header) {
+    if ($message_header[0] === $header) {
+      return $message_header[1];
+    }
+  }
+
+  return FALSE;
+}
