@@ -231,19 +231,19 @@ function bonsai_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'metatags' => array(
-          'weight' => '20',
+          'weight' => '21',
         ),
         'title' => array(
-          'weight' => '18',
+          'weight' => '19',
         ),
         'path' => array(
-          'weight' => '19',
+          'weight' => '20',
         ),
       ),
       'display' => array(
         'sharethis' => array(
           'default' => array(
-            'weight' => '9',
+            'weight' => '18',
             'visible' => FALSE,
           ),
         ),
