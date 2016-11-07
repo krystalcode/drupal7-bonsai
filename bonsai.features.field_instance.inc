@@ -874,7 +874,7 @@ function bonsai_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'bonsai_message_email_ref',
-    'label' => 'In reply to',
+    'label' => 'In Reply To',
     'required' => 0,
     'settings' => array(
       'behaviors' => array(
