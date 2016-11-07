@@ -27,7 +27,8 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
      *   labels="data"
      * )
      */
-    $recipients = [$message->{'recipients'}];
+    $recipients = explode(',', $message->{'To'});
+    $recipients = array_map('trim', $recipients);
 
     // Create a node for storing the message.
     $node = entity_create('node', array('type' => 'bonsai_message_email'));
@@ -60,7 +61,7 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
 
     // Mandatory fields.
     $node_wrapper->bonsai_email_id  = _bonsai_email_trim_email_id($message->{'Message-Id'});
-    $node_wrapper->bonsai_email     = $message->{'sender'};
+    $node_wrapper->bonsai_email     = $message->{'From'};
     $node_wrapper->bonsai_emails    = $recipients;
     $node_wrapper->bonsai_timestamp = $time;
     $node_wrapper->bonsai_json      = json_encode($message);
