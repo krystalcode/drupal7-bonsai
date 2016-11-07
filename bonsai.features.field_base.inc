@@ -74,6 +74,7 @@ function bonsai_field_default_field_bases() {
     'module' => 'email',
     'settings' => array(
       'entity_translation_sync' => FALSE,
+      'max_length' => 998,
     ),
     'translatable' => 0,
     'type' => 'email',
@@ -135,6 +136,7 @@ function bonsai_field_default_field_bases() {
     'module' => 'email',
     'settings' => array(
       'entity_translation_sync' => FALSE,
+      'max_length' => 998,
     ),
     'translatable' => 0,
     'type' => 'email',
@@ -152,6 +154,7 @@ function bonsai_field_default_field_bases() {
     'module' => 'email',
     'settings' => array(
       'entity_translation_sync' => FALSE,
+      'max_length' => 998,
     ),
     'translatable' => 0,
     'type' => 'email',
@@ -169,6 +172,7 @@ function bonsai_field_default_field_bases() {
     'module' => 'email',
     'settings' => array(
       'entity_translation_sync' => FALSE,
+      'max_length' => 998,
     ),
     'translatable' => 0,
     'type' => 'email',

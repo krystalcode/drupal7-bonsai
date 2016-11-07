@@ -160,6 +160,7 @@ function bonsai_field_default_field_instances() {
     'label' => 'Emails',
     'required' => 0,
     'settings' => array(
+      'email_full_format' => 1,
       'entity_translation_sync' => FALSE,
       'user_register_form' => FALSE,
     ),
@@ -402,6 +403,7 @@ function bonsai_field_default_field_instances() {
     'label' => 'Sender',
     'required' => 1,
     'settings' => array(
+      'email_full_format' => 1,
       'entity_translation_sync' => FALSE,
       'user_register_form' => FALSE,
     ),
@@ -574,6 +576,7 @@ function bonsai_field_default_field_instances() {
     'label' => 'Recipients',
     'required' => 1,
     'settings' => array(
+      'email_full_format' => 1,
       'entity_translation_sync' => FALSE,
       'user_register_form' => FALSE,
     ),
@@ -614,6 +617,7 @@ function bonsai_field_default_field_instances() {
     'label' => 'CC Recipients',
     'required' => 0,
     'settings' => array(
+      'email_full_format' => 1,
       'entity_translation_sync' => FALSE,
       'user_register_form' => FALSE,
     ),
@@ -654,6 +658,7 @@ function bonsai_field_default_field_instances() {
     'label' => 'BCC Recipients',
     'required' => 0,
     'settings' => array(
+      'email_full_format' => 1,
       'entity_translation_sync' => FALSE,
       'user_register_form' => FALSE,
     ),
