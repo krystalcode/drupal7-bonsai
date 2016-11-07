@@ -61,7 +61,7 @@ function bonsai_cron() {
        *   labels="administration, configuration"
        * )
        */
-      'limit'  => 100,
+      'limit'  => variable_get('bonsai_cron_messages_limit', 100),
     )
   );
 
