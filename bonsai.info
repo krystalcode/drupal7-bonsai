@@ -6,6 +6,7 @@ version = 7.x-0.1-dev
 dependencies[] = ctools
 dependencies[] = date
 dependencies[] = email
+dependencies[] = entity
 dependencies[] = entityreference
 dependencies[] = features
 dependencies[] = file
@@ -15,6 +16,12 @@ dependencies[] = list
 dependencies[] = og
 dependencies[] = og_moderation
 dependencies[] = og_ui
+; @Issue(
+;   "The ogmk_shops should not be detected as a dependency"
+;   type="bug"
+;   priority="low"
+;   labels="features"
+; )
 dependencies[] = ogmk_shops
 dependencies[] = options
 dependencies[] = strongarm
