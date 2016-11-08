@@ -48,6 +48,24 @@ use Drupal\bonsai\Mailgun\MessageToNodeTransformer;
  */
 
 /**
+ * Implements hook_menu().
+ */
+function bonsai_menu() {
+  $items = array();
+
+  // Menu item for image attachment call for message nodes.
+  $items['bonsai/messages/%node/attachments/add'] = array(
+    'title' => 'Add Attachments',
+    'page callback' => '_bonsai_attachments_add_page',
+    'page arguments' => array(2),
+    'access callback' => '_bonsai_attachments_add_access',
+    'access arguments' => array(2),
+  );
+
+  return $items;
+}
+
+/**
  * Implements hook_permission().
  */
 function bonsai_permission() {
@@ -377,4 +395,266 @@ function _bonsai_email_email_has_header($email_json, $header) {
   }
 
   return FALSE;
+}
+
+function _bonsai_node_add_attachment($attachment, $node_wrapper) {
+  // We will be using the entity wrapper for manipulating fields. If we are
+  // given the node id or the node object, wrap it in an entity wrapper.
+  if (is_numeric($node_wrapper) && is_int((int) $node_wrapper)) {
+    $node_wrapper = node_load($node_wrapper);
+  }
+  if (is_object($node_wrapper) && get_class($node_wrapper) !== 'EntityDrupalWrapper') {
+    $node_wrapper = entity_metadata_wrapper('node', $node_wrapper);
+  }
+
+  // Determine the field where the file will be attached, depending on the
+  // attachment's content type.
+  $image_content_types = array(
+    'image/gif',
+    'image/jpeg',
+    'image/png',
+  );
+  if (in_array($attachment->{'content-type'}, $image_content_types)) {
+    $field_name = 'bonsai_images';
+  }
+  else {
+    $field_name = 'bonsai_files';
+  }
+
+  // Get the field settings for determining the full storage path where the file
+  // will be stored.
+  $instance_info  = field_info_instance('node', $field_name, $node_wrapper->type->value());
+  $file_directory = $instance_info['settings']['file_directory'];
+  $field_info     = field_info_field($field_name);
+  $uri_scheme     = $field_info['settings']['uri_scheme'];
+
+  // Create the storage directory if it doesn't exist.
+  $storage_directory = $uri_scheme . '://' . $file_directory;
+  $directory_exists = file_prepare_directory($storage_directory, FILE_CREATE_DIRECTORY);
+
+  // If the directory exists (or it was successfully created), proceed with
+  // downloading the file and attaching it to the field. If not, and it could
+  // not be created, a watchdog error must have been logged by Drupal as a PHP
+  // notice/warning, so we don't need to do it here again. Instead, we display a
+  // generic error message to the user and return.
+  if (!$directory_exists) {
+    drupal_set_message(
+      t('An unexpected error has occurred, please try again. If the error persists, contact the site administrator'),
+      'error'
+    );
+    return;
+  }
+
+  // Download and save the file.
+  $client = bonsai_get_client();
+  $response = $client->get($attachment->url);
+  if ($response->http_response_code !== 200) {
+    watchdog(
+      'bonsai',
+      "Unsuccessful response code $response->http_response_code when trying to download a message attachment from $attachment->url",
+      array(),
+      WATCHDOG_ERROR
+    );
+    drupal_set_message(
+      t('The file could not be retrieved from the email service provider, please try again. If the problem persists, contact the site administrator.'),
+      'error'
+    );
+    return;
+  }
+
+  // If the response code is OK, the data should be containing the file. Create
+  // a Drupal file object with it.
+  $file = file_save_data(
+    $response->http_response_body,
+    $storage_directory . '/' . $attachment->name,
+    FILE_EXISTS_RENAME
+  );
+  // Since we are assigning automatically fetched messages to the superuser, we
+  // should do the same for automatically fetched attachments e.g. not manually
+  // uploaded by a user. Both (fetched messages and attachments) should
+  // correspond to received messages. Sent messages and attachments are created
+  // first as Drupal nodes/files, and then send as emails, so we should never be
+  // inside this function when handling sent messages.
+  $file->uid = 1;
+  // We will always immediately attach the file to a node, so the status should
+  // be permanent so it won't be deleted during cron.
+  $file->status = 1;
+
+  // Do validation before saving the file, according to settings defined in the
+  // field instance.
+  $validators = array(
+    'file_validate_size'        => array(parse_size($instance_info['settings']['max_filesize'])),
+    'file_validate_extensions'  => array($instance_info['settings']['file_extensions']),
+    'file_validate_name_length' => array(),
+  );
+  if ($field_info['type'] === 'image') {
+    $validators += array(
+      'file_validate_is_image'         => array(),
+      'file_validate_image_resolution' => array($instance_info['settings']['max_resolution']),
+    );
+  }
+  $errors = file_validate(
+    $file,
+    $validators
+  );
+
+  // Do not save the file if there are validation errors. Set the error messages
+  // to be displayed to the user, and return.
+  if ($errors) {
+    foreach ($errors as $error) {
+      drupal_set_message($error, 'error');
+    }
+    return;
+  }
+
+  // Proceed with saving the file if there are no errors.
+  file_save($file);
+
+  // Attach the file to the given node. We need to set the 'display' field
+  // property since it is required. If the field settings provide a default, we
+  // use that, if not we set it to 1 which is the default in that case.
+  if ($field_info['type'] === 'file') {
+    if ($field_info['settings']['display_field']) {
+      $file->display = $field_info['settings']['display_default'];
+    }
+    else {
+      $file->display = 1;
+    }
+  }
+  $files = $node_wrapper->{$field_name}->value();
+  if ($files) {
+    $files[] = (array) $file;
+  }
+  else {
+    $files = array((array) $file);
+  }
+  $node_wrapper->{$field_name}->set($files);
+
+  // Update the file usage table.
+  file_usage_add($file, 'file', 'node', $node_wrapper->getIdentifier());
+
+  // Save the node with the updated file field.
+  $node_wrapper->save();
+
+  /**
+   * @Issue(
+   *   "Field caches are not cleared when saving only the individual file field
+   *   when adding attachments"
+   *   type="improvement"
+   *   priority="low"
+   *   labels="performance"
+   * )
+   * // Save only the individual field instead of saving the full node.
+   * $fields = array(field_info_field($field_name)['id']);
+   * field_sql_storage_field_storage_write('node', $node_wrapper->value(), 'update', $fields);
+   *
+   * // Clear field cache
+   * $nid = $node_wrapper->getIdentifier();
+   * cache_clear_all("field:node:$nid", 'cache_field');
+   */
+}
+
+/**
+ * @Issue(
+ *   "Move page callbacks into a bonsai.pages.inc file"
+ *   type="improvement"
+ *   priority="low"
+ *   labels="structure"
+ * )
+ * @Issue(
+ *   "Properly handle error cases instead of always returning 404"
+ *   type="improvement"
+ *   priority="low"
+ *   labels="correctedness"
+ * )
+ */
+function _bonsai_attachments_add_page($node) {
+  // Attachments are meant to be added via a POST request.
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    drupal_not_found();
+    return;
+  }
+
+  // Currently only the node type provided by this module is supported.
+  if (empty($node) || $node->type !== 'bonsai_message_email') {
+    drupal_not_found();
+    return;
+  }
+
+  $node_wrapper = entity_metadata_wrapper('node', $node);
+
+  /**
+   * @Issue(
+   *   "Find a way to detect whether an attachment has already been added to the
+   *   node"
+   *   type="bug"
+   *   priority="low"
+   *   labels="data"
+   * )
+   */
+
+  // Make sure that the attachment url is given.
+  /**
+   * @Issue(
+   *   "Support a request to attach all message's attachment to the
+   *   corresponding node"
+   *   type="improvement"
+   *   priority="normal"
+   *   labels="ux"
+   * )
+   */
+  if (empty($_POST['url'])) {
+    drupal_not_found();
+    return;
+  }
+
+  $attachment = NULL;
+
+  // Check if the requested attachment url actually belongs to the message
+  // corresponding to the node where the attachment will be added.
+  $message = json_decode($node_wrapper->bonsai_json->value());
+  if (!empty($message->attachments)) {
+    // Get all the details of the attachment.
+    foreach ($message->attachments as $message_attachment) {
+      if ($_POST['url'] === $message_attachment->url) {
+        $attachment = $message_attachment;
+      }
+    }
+  }
+
+  // If the attachment was not found, it does not belong to this message.
+  if (empty($message->attachments)) {
+    drupal_not_found();
+    return;
+  }
+
+  // All looks good, add the attachment to the node.
+  _bonsai_node_add_attachment($attachment, $node_wrapper);
+
+  /**
+   * @Issue(
+   *   "Allow a redirect url via a query parameter to accommodate adding
+   *   attachments from pages other than the node view page"
+   *   type="improvement"
+   *   priority="low"
+   * )
+   */
+
+  // Go back to the node page.
+  drupal_goto('node/' . $node_wrapper->getIdentifier());
+}
+
+function _bonsai_attachments_add_access($node) {
+  // We allow users to add attachments if they have the related permission, and
+  // they can also update the node.
+  /**
+   * @Issue(
+   *   "Review what is the best permissions choice for allowing fetching message
+   *   attachments"
+   *   type="task"
+   *   priority="low"
+   *   labels="investigation"
+   * )
+   */
+  return node_access('update', $node) && user_access('bonsai fetch attachments');
 }
