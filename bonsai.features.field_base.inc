@@ -2,6 +2,14 @@
 /**
  * @file
  * bonsai.features.field_base.inc
+ *
+ * @Issue(
+ *   "Make storage class exportable by machine name instead of id, for the files
+ *   and images fields"
+ *   type="bug"
+ *   priority="low"
+ *   labels="deployment, environment"
+ * )
  */
 
 /**
@@ -176,6 +184,65 @@ function bonsai_field_default_field_bases() {
     ),
     'translatable' => 0,
     'type' => 'email',
+  );
+
+  // Exported field_base: 'bonsai_files'.
+  $field_bases['bonsai_files'] = array(
+    'active' => 1,
+    'cardinality' => -1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'bonsai_files',
+    'indexes' => array(
+      'fid' => array(
+        0 => 'fid',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'file',
+    'settings' => array(
+      'display_default' => 0,
+      'display_field' => 0,
+      'entity_translation_sync' => array(
+        0 => 'fid',
+      ),
+      'storage_class' => array(
+        'class_id' => 2,
+        'current_class_id' => 2,
+      ),
+      'uri_scheme' => 'storage-bonsai-files',
+    ),
+    'translatable' => 0,
+    'type' => 'file',
+  );
+
+  // Exported field_base: 'bonsai_images'.
+  $field_bases['bonsai_images'] = array(
+    'active' => 1,
+    'cardinality' => -1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'bonsai_images',
+    'indexes' => array(
+      'fid' => array(
+        0 => 'fid',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'image',
+    'settings' => array(
+      'default_image' => 0,
+      'entity_translation_sync' => array(
+        0 => 'fid',
+      ),
+      'storage_class' => array(
+        'class_id' => 2,
+        'current_class_id' => 2,
+      ),
+      'uri_scheme' => 'storage-bonsai-images',
+    ),
+    'translatable' => 0,
+    'type' => 'image',
   );
 
   // Exported field_base: 'bonsai_json'.

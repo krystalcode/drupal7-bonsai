@@ -673,6 +673,101 @@ function bonsai_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-bonsai_message_email-bonsai_files'.
+  $field_instances['node-bonsai_message_email-bonsai_files'] = array(
+    'bundle' => 'bonsai_message_email',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_table',
+        'weight' => 20,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'bonsai_files',
+    'label' => 'File Attachments',
+    'required' => 0,
+    'settings' => array(
+      'description_field' => 0,
+      'entity_translation_sync' => FALSE,
+      'file_directory' => 'node/bonsai_message_email/bonsai_files',
+      'file_extensions' => 'txt',
+      'max_filesize' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'file',
+      'settings' => array(
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'file_generic',
+      'weight' => 22,
+    ),
+  );
+
+  // Exported field_instance: 'node-bonsai_message_email-bonsai_images'.
+  $field_instances['node-bonsai_message_email-bonsai_images'] = array(
+    'bundle' => 'bonsai_message_email',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'module' => 'bonsai',
+        'settings' => array(
+          'display_caption' => 1,
+          'image_link' => '',
+          'image_style' => '',
+        ),
+        'type' => 'bonsai_bootstrap_thumbnail',
+        'weight' => 21,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'bonsai_images',
+    'label' => 'Image Attachments',
+    'required' => 0,
+    'settings' => array(
+      'alt_field' => 0,
+      'default_image' => 0,
+      'entity_translation_sync' => FALSE,
+      'file_directory' => 'node/bonsai_message_email/bonsai_images',
+      'file_extensions' => 'png gif jpg jpeg',
+      'max_filesize' => '',
+      'max_resolution' => '',
+      'min_resolution' => '',
+      'title_field' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'image',
+      'settings' => array(
+        'preview_image_style' => 'thumbnail',
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'image_image',
+      'weight' => 23,
+    ),
+  );
+
   // Exported field_instance: 'node-bonsai_message_email-bonsai_json'.
   $field_instances['node-bonsai_message_email-bonsai_json'] = array(
     'bundle' => 'bonsai_message_email',
@@ -1242,8 +1337,10 @@ function bonsai_field_default_field_instances() {
   t('Determine if this is an OG group.');
   t('Email Groups');
   t('Emails');
+  t('File Attachments');
   t('Group');
   t('ID');
+  t('Image Attachments');
   t('In Reply To');
   t('JSON');
   t('Recipient Users');
