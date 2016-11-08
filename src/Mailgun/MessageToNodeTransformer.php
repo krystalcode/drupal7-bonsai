@@ -12,21 +12,6 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     $time = strtotime($message->{'Date'});
 
     // Get the recipients' emails.
-    /**
-     * @Issue(
-     *   "Store both the email but also the full address incl. name, if
-     *   available, for sender and recipients fields"
-     *   type="improvement"
-     *   priority="low"
-     *   labels="data"
-     * )
-     * @Issue(
-     *   "Detect and store CC and BCC recipients as well"
-     *   type="bug"
-     *   priority="low"
-     *   labels="data"
-     * )
-     */
     $recipients = explode(',', $message->{'To'});
     $recipients = array_map('trim', $recipients);
 
@@ -76,14 +61,32 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
      */
 
     // Optional fields.
+    if (!empty($message->{'Cc'})) {
+      $cc_recipients = explode(',', $message->{'Cc'});
+      $cc_recipients = array_map('trim', $cc_recipients);
+      $node_wrapper->bonsai_emails2 = $cc_recipients;
+    }
+    /**
+     * @Issue(
+     *   "Validate that the Bcc field is properly retrieved"
+     *   type="bug"
+     *   priority="low"
+     *   labels="data"
+     * )
+     */
+    if (!empty($message->{'Bcc'})) {
+      $bcc_recipients = explode(',', $message->{'Bcc'});
+      $bcc_recipients = array_map('trim', $bcc_recipients);
+      $node_wrapper->bonsai_emails3 = $bcc_recipients;
+    }
     if (!empty($message->{'subject'})) {
       $node_wrapper->bonsai_email_subject = $message->{'subject'};
     }
     if (!empty($message->{'body-plain'})) {
-      $node_wrapper->bonsai_long_text     = $message->{'body-plain'};
+      $node_wrapper->bonsai_long_text = $message->{'body-plain'};
     }
     if (!empty($message->{'body-html'})) {
-      $node_wrapper->bonsai_long_text2    = $message->{'body-html'};
+      $node_wrapper->bonsai_long_text2 = $message->{'body-html'};
     }
 
     /**
