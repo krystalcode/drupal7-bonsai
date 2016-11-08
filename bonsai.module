@@ -15,6 +15,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 // Internal dependencies.
 use Drupal\bonsai\Mailgun\MessageToNodeTransformer;
 
+
 /**
  * @Issue(
  *   "Define admin page for setting required system variables"
@@ -31,6 +32,12 @@ use Drupal\bonsai\Mailgun\MessageToNodeTransformer;
  * @Issue(
  *   "Add a composer.json file for defining composer dependencies"
  *   type="bug"
+ *   priority="normal"
+ * )
+ * @Issue(
+ *   "Allow users to change the default authentic/spam field, or flag messages
+ *   using the flag module"
+ *   type="improvement"
  *   priority="normal"
  * )
  */
