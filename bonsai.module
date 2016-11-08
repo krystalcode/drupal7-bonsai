@@ -40,6 +40,28 @@ use Drupal\bonsai\Mailgun\MessageToNodeTransformer;
  */
 
 /**
+ * Implements hook_permission().
+ */
+function bonsai_permission() {
+  $permissions = array(
+    'bonsai fetch attachments' => array(
+      'title' => t('Fetch attachments from the source and add them to messages'),
+    ),
+    'bonsai send messages' => array(
+      'title' => t('Send messages'),
+    ),
+    'bonsai view messages' => array(
+      'title' => t('View messages'),
+    ),
+    'bonsai view messages source' => array(
+      'title' => t('View the source of messages'),
+    ),
+  );
+
+  return $permissions;
+}
+
+/**
  * Implements hook_cron().
  *
  * Defines a cron item for regularly fetching new messages from the email
