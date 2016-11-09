@@ -160,14 +160,6 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
 
 /**
  * Implements hook_node_presave().
- *
- * @Issue(
- *   "Optimise the algorithm for updating the users corresponding to a message's
- *   emails"
- *   type="improvement"
- *   priority="low"
- *   labels="performance"
- * )
  */
 function bonsai_node_presave($node) {
   // Set the title to be the email's subject (up to 255 characters due to
