@@ -325,7 +325,7 @@ function bonsai_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'bonsai_boolean',
     'label' => 'Authentic',
-    'required' => 1,
+    'required' => 0,
     'settings' => array(
       'entity_translation_sync' => FALSE,
       'user_register_form' => FALSE,
@@ -335,7 +335,7 @@ function bonsai_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 16,
+      'weight' => 12,
     ),
   );
 
@@ -363,7 +363,7 @@ function bonsai_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'bonsai_boolean2',
     'label' => 'Spam',
-    'required' => 1,
+    'required' => 0,
     'settings' => array(
       'entity_translation_sync' => FALSE,
       'user_register_form' => FALSE,
@@ -373,7 +373,7 @@ function bonsai_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 17,
+      'weight' => 13,
     ),
   );
 
@@ -400,7 +400,7 @@ function bonsai_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'bonsai_email',
-    'label' => 'Sender',
+    'label' => 'From',
     'required' => 1,
     'settings' => array(
       'email_full_format' => 1,
@@ -441,7 +441,7 @@ function bonsai_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'bonsai_email_id',
     'label' => 'ID',
-    'required' => 1,
+    'required' => 0,
     'settings' => array(
       'better_formats' => array(
         'allowed_formats' => array(
@@ -480,7 +480,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 14,
+      'weight' => 10,
     ),
   );
 
@@ -546,7 +546,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 10,
+      'weight' => 15,
     ),
   );
 
@@ -573,7 +573,7 @@ function bonsai_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'bonsai_emails',
-    'label' => 'Recipients',
+    'label' => 'To',
     'required' => 1,
     'settings' => array(
       'email_full_format' => 1,
@@ -587,7 +587,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'email_textfield',
-      'weight' => 4,
+      'weight' => 3,
     ),
   );
 
@@ -614,7 +614,7 @@ function bonsai_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'bonsai_emails2',
-    'label' => 'CC Recipients',
+    'label' => 'CC',
     'required' => 0,
     'settings' => array(
       'email_full_format' => 1,
@@ -628,7 +628,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'email_textfield',
-      'weight' => 6,
+      'weight' => 4,
     ),
   );
 
@@ -655,7 +655,7 @@ function bonsai_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'bonsai_emails3',
-    'label' => 'BCC Recipients',
+    'label' => 'BCC',
     'required' => 0,
     'settings' => array(
       'email_full_format' => 1,
@@ -669,7 +669,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'email_textfield',
-      'weight' => 8,
+      'weight' => 5,
     ),
   );
 
@@ -712,7 +712,7 @@ function bonsai_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'file_generic',
-      'weight' => 22,
+      'weight' => 20,
     ),
   );
 
@@ -764,7 +764,7 @@ function bonsai_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 23,
+      'weight' => 22,
     ),
   );
 
@@ -792,7 +792,7 @@ function bonsai_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'bonsai_json',
     'label' => 'JSON',
-    'required' => 1,
+    'required' => 0,
     'settings' => array(
       'entity_translation_sync' => FALSE,
       'user_register_form' => FALSE,
@@ -804,7 +804,7 @@ function bonsai_field_default_field_instances() {
         'ui_edit' => 'hide',
       ),
       'type' => 'jsonb_textarea',
-      'weight' => 18,
+      'weight' => 14,
     ),
   );
 
@@ -871,7 +871,7 @@ function bonsai_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 11,
+      'weight' => 8,
     ),
   );
 
@@ -904,11 +904,11 @@ function bonsai_field_default_field_instances() {
       'better_formats' => array(
         'allowed_formats' => array(
           'ogmk_basic_html' => 'ogmk_basic_html',
-          'ogmk_html' => 'ogmk_html',
+          'ogmk_html' => 0,
           'ogmk_plain_html' => 'ogmk_plain_html',
-          'plain_text' => 'plain_text',
+          'plain_text' => 0,
         ),
-        'allowed_formats_toggle' => 0,
+        'allowed_formats_toggle' => 1,
         'default_order_toggle' => 0,
         'default_order_wrapper' => array(
           'formats' => array(
@@ -928,7 +928,7 @@ function bonsai_field_default_field_instances() {
         ),
       ),
       'entity_translation_sync' => FALSE,
-      'text_processing' => 0,
+      'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -938,7 +938,7 @@ function bonsai_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 12,
+      'weight' => 17,
     ),
   );
 
@@ -974,7 +974,7 @@ function bonsai_field_default_field_instances() {
     'settings' => array(
       'behaviors' => array(
         'prepopulate' => array(
-          'action' => 'disable',
+          'action' => 'hide',
           'action_on_edit' => 1,
           'fallback' => 'hide',
           'providers' => array(
@@ -997,7 +997,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 0,
+      'weight' => 3,
     ),
   );
 
@@ -1031,7 +1031,7 @@ function bonsai_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'bonsai_timestamp',
     'label' => 'Date',
-    'required' => 1,
+    'required' => 0,
     'settings' => array(
       'default_value' => 'now',
       'default_value2' => 'same',
@@ -1053,7 +1053,7 @@ function bonsai_field_default_field_instances() {
         'year_range' => '-3:+3',
       ),
       'type' => 'date_text',
-      'weight' => 15,
+      'weight' => 11,
     ),
   );
 
@@ -1066,12 +1066,14 @@ function bonsai_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
+        'label' => 'inline',
+        'module' => 'bonsai',
         'settings' => array(
-          'link' => FALSE,
+          'field' => '',
+          'mode' => 'link',
+          'no_access_skip' => 1,
         ),
-        'type' => 'entityreference_label',
+        'type' => 'bonsai_entity_email',
         'weight' => 9,
       ),
       'teaser' => array(
@@ -1083,7 +1085,7 @@ function bonsai_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'bonsai_user_ref',
-    'label' => 'Sender User',
+    'label' => 'From',
     'required' => 0,
     'settings' => array(
       'behaviors' => array(
@@ -1103,7 +1105,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 3,
+      'weight' => 4,
     ),
   );
 
@@ -1116,12 +1118,14 @@ function bonsai_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
+        'label' => 'inline',
+        'module' => 'bonsai',
         'settings' => array(
-          'link' => FALSE,
+          'field' => '',
+          'mode' => 'link',
+          'no_access_skip' => 1,
         ),
-        'type' => 'entityreference_label',
+        'type' => 'bonsai_entity_email',
         'weight' => 10,
       ),
       'teaser' => array(
@@ -1133,7 +1137,7 @@ function bonsai_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'bonsai_users_ref',
-    'label' => 'Recipient Users',
+    'label' => 'To',
     'required' => 0,
     'settings' => array(
       'behaviors' => array(
@@ -1166,12 +1170,14 @@ function bonsai_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
+        'label' => 'inline',
+        'module' => 'bonsai',
         'settings' => array(
-          'link' => FALSE,
+          'field' => '',
+          'mode' => 'link',
+          'no_access_skip' => 1,
         ),
-        'type' => 'entityreference_label',
+        'type' => 'bonsai_entity_email',
         'weight' => 11,
       ),
       'teaser' => array(
@@ -1183,7 +1189,59 @@ function bonsai_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'bonsai_users_ref2',
-    'label' => 'CC Users',
+    'label' => 'CC',
+    'required' => 0,
+    'settings' => array(
+      'behaviors' => array(
+        'prepopulate' => array(
+          'status' => 0,
+        ),
+      ),
+      'entity_translation_sync' => FALSE,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
+      ),
+      'type' => 'entityreference_autocomplete',
+      'weight' => 6,
+    ),
+  );
+
+  // Exported field_instance: 'node-bonsai_message_email-bonsai_users_ref3'.
+  $field_instances['node-bonsai_message_email-bonsai_users_ref3'] = array(
+    'bundle' => 'bonsai_message_email',
+    'default_value' => NULL,
+    'default_value_function' => '',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'bonsai',
+        'settings' => array(
+          'field' => '',
+          'mode' => 'link',
+          'no_access_skip' => 1,
+        ),
+        'type' => 'bonsai_entity_email',
+        'weight' => 12,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'bonsai_users_ref3',
+    'label' => 'BCC',
     'required' => 0,
     'settings' => array(
       'behaviors' => array(
@@ -1204,56 +1262,6 @@ function bonsai_field_default_field_instances() {
       ),
       'type' => 'entityreference_autocomplete',
       'weight' => 7,
-    ),
-  );
-
-  // Exported field_instance: 'node-bonsai_message_email-bonsai_users_ref3'.
-  $field_instances['node-bonsai_message_email-bonsai_users_ref3'] = array(
-    'bundle' => 'bonsai_message_email',
-    'default_value' => NULL,
-    'default_value_function' => '',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 12,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'bonsai_users_ref3',
-    'label' => 'BCC Users',
-    'required' => 0,
-    'settings' => array(
-      'behaviors' => array(
-        'prepopulate' => array(
-          'status' => 0,
-        ),
-      ),
-      'entity_translation_sync' => FALSE,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'entityreference',
-      'settings' => array(
-        'match_operator' => 'CONTAINS',
-        'path' => '',
-        'size' => 60,
-      ),
-      'type' => 'entityreference_autocomplete',
-      'weight' => 9,
     ),
   );
 
@@ -1319,36 +1327,32 @@ function bonsai_field_default_field_instances() {
       'module' => 'og',
       'settings' => array(),
       'type' => 'og_complex',
-      'weight' => 13,
+      'weight' => 9,
     ),
   );
 
   // Translatables
   // Included for use with string extractors like potx.
   t('Authentic');
-  t('BCC Recipients');
-  t('BCC Users');
+  t('BCC');
   t('Body in HTML');
   t('Body in Plain Text');
-  t('CC Recipients');
-  t('CC Users');
+  t('CC');
   t('Comment');
   t('Date');
   t('Determine if this is an OG group.');
   t('Email Groups');
   t('Emails');
   t('File Attachments');
+  t('From');
   t('Group');
   t('ID');
   t('Image Attachments');
   t('In Reply To');
   t('JSON');
-  t('Recipient Users');
-  t('Recipients');
-  t('Sender');
-  t('Sender User');
   t('Spam');
   t('Subject');
+  t('To');
 
   return $field_instances;
 }
