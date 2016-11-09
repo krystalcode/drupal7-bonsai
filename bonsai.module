@@ -88,6 +88,121 @@ function bonsai_permission() {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, $form_id) {
+  // We will be populating the user fields in hook_node_presave(), so disallow
+  // all users from updating these fields.
+  $form['bonsai_user_ref']['#access']   = FALSE;
+  $form['bonsai_users_ref']['#access']  = FALSE;
+  $form['bonsai_users_ref2']['#access'] = FALSE;
+  $form['bonsai_users_ref3']['#access'] = FALSE;
+}
+
+/**
+ * Implements hook_node_presave().
+ *
+ * @Issue(
+ *   "Optimise the algorithm for updating the users corresponding to a message's
+ *   emails"
+ *   type="improvement"
+ *   priority="low"
+ *   labels="performance"
+ * )
+ */
+function bonsai_node_presave($node) {
+  // We are not going to save the node here, so we are only using the entity
+  // wrapper for easily fetching field values - we're gonna do this a lot.
+  $node_wrapper = entity_metadata_wrapper('node', $node);
+
+  // The emails in minimal format.
+  $sender_email          = _bonsai_full_format_to_email($node_wrapper->bonsai_email->value());
+  $recipients_emails     = array_map('_bonsai_full_format_to_email', $node_wrapper->bonsai_emails->value());
+  $cc_recipients_emails  = array_map('_bonsai_full_format_to_email', $node_wrapper->bonsai_emails2->value());
+  $bcc_recipients_emails = array_map('_bonsai_full_format_to_email', $node_wrapper->bonsai_emails3->value());
+
+  // Get a list of all emails so that we fetch the users only once (instead of
+  // fetching the users for sender, recipients, CC recipients and BCC recipients
+  // separately). That complicates the algorithm a bit, but it can be a
+  // significant performance improvement.
+  $emails = array_merge(
+    array($sender_email),
+    $recipients_emails
+  );
+
+  if (!empty($cc_recipients_emails)) {
+    $emails = array_merge(
+      $emails,
+      $cc_recipients_emails
+    );
+  }
+
+  if (!empty($bcc_recipients_emails)) {
+    $emails = array_merge(
+      $emails,
+      $bcc_recipients_emails
+    );
+  }
+
+  $uids = _bonsai_uids_by_emails($emails);
+
+  // Nothing to do if there are no matching users.
+  if (empty($uids)) {
+    return;
+  }
+
+  $users = user_load_multiple($uids);
+
+  // We loop over found users and we check on which user reference fields they
+  // should be added to.
+  $sender_found        = FALSE;
+  $recipients_uids     = array();
+  $cc_recipients_uids  = array();
+  $bcc_recipients_uids = array();
+
+  foreach ($users as $user) {
+    // Check the sender. The sender can only ever be one, so we use a variable
+    // to track when we have found it so that we don't make unnecessary checks.
+    if (!$sender_found && $user->mail === $sender_email) {
+      $node_wrapper->bonsai_user_ref->set($user->uid);
+      $sender_found = TRUE;
+    }
+
+    // Check the recipients.
+    foreach ($recipients_emails as $email) {
+      if ($user->mail === $email) {
+        $recipients_uids[] = $user->uid;
+      }
+    }
+
+    // Check the CC recipients.
+    foreach ($cc_recipients_emails as $email) {
+      if ($user->mail === $email) {
+        $cc_recipients_uids[] = $user->uid;
+      }
+    }
+
+    // Check the BCC recipients.
+    foreach ($bcc_recipients_emails as $email) {
+      if ($user->mail === $email) {
+        $bcc_recipients_uids[] = $user->uid;
+      }
+    }
+  }
+
+  // Set the users we've found, apart from the sender we has already been set.
+  if (!empty($recipients_uids)) {
+    $node_wrapper->bonsai_users_ref->set($recipients_uids);
+  }
+  if (!empty($cc_recipients_uids)) {
+    $node_wrapper->bonsai_users_ref2->set($cc_recipients_uids);
+  }
+  if (!empty($bcc_recipients_uids)) {
+    $node_wrapper->bonsai_users_ref3->set($bcc_recipients_uids);
+  }
+}
+
+/**
  * Implements hook_cron().
  *
  * Defines a cron item for regularly fetching new messages from the email
@@ -379,6 +494,35 @@ function _bonsai_email_email_has_parent($email_id) {
 
   $node = current($result['node']);
   return $node->nid;
+}
+
+function _bonsai_full_format_to_email($email) {
+  $email_start = strpos($email, '<');
+
+  if ($email_start === FALSE || substr($email, -1) !== '>') {
+    return $email;
+  }
+
+  return substr($email, $email_start+1, -1);
+}
+
+function _bonsai_uids_by_emails(array $emails) {
+  if (empty($emails)) {
+    return array();
+  }
+
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'user')
+    ->propertyCondition('mail', $emails, 'IN')
+  ;
+  $result = $query->execute();
+
+  if (empty($result['user'])) {
+    return array();
+  }
+
+  return array_keys($result['user']);
 }
 
 function _bonsai_email_email_has_header($email_json, $header) {
