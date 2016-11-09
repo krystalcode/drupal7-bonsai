@@ -91,12 +91,71 @@ function bonsai_permission() {
  * Implements hook_form_FORM_ID_alter().
  */
 function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, $form_id) {
+  // Improve the 'Add another item' buttons for adding multiple recipients.
+  $fields = array(
+    'bonsai_emails'  => 'Add recipients',
+    'bonsai_emails2' => 'Add CC recipients',
+    'bonsai_emails3' => 'Add BCC recipients',
+  );
+
+  foreach ($fields as $field_name => $title) {
+    $language = $form[$field_name]['#language'];
+    $form[$field_name][$language]['add_more']['#value'] = '<span class="fa fa-plus"></span> ' . t($title);
+    $form[$field_name][$language]['add_more']['#attributes']['class'][] = 'btn-sm btn-info';
+  }
+
   // We will be populating the user fields in hook_node_presave(), so disallow
   // all users from updating these fields.
   $form['bonsai_user_ref']['#access']   = FALSE;
   $form['bonsai_users_ref']['#access']  = FALSE;
   $form['bonsai_users_ref2']['#access'] = FALSE;
   $form['bonsai_users_ref3']['#access'] = FALSE;
+
+  // Mailgun will be creating a plain text version of the HTML body, so let's
+  // only make the HTML field with a text editor available.
+  $form['bonsai_long_text']['#access'] = FALSE;
+
+  // The following fields are automatically set, either upon creation or when
+  // the email will actually be sent.
+  $form['og_bonsai_emails_ref']['#access'] = FALSE;
+  $form['bonsai_email_id']['#access']      = FALSE;
+  $form['bonsai_timestamp']['#access']     = FALSE;
+  $form['bonsai_json']['#access']          = FALSE;
+
+  // The title will be automatically generated from the subject.
+  $form['title']['#access'] = FALSE;
+
+  // Set the authenticity and spam indicator fields to TRUE and FALSE
+  // correspondingly. We are creating the email, so it has to be authenic and
+  // it is not spam.
+  $language = $form['bonsai_boolean']['#language'];
+  $form['bonsai_boolean'][$language]['#default_value'] = 1;
+  $form['bonsai_boolean']['#access'] = FALSE;
+  $language = $form['bonsai_boolean2']['#language'];
+  $form['bonsai_boolean2'][$language]['#default_value'] = 0;
+  $form['bonsai_boolean2']['#access'] = FALSE;
+
+  // Display an info message showing the email message that the current is a
+  // reply to. We are hiding the autocomplet for the In Reply To field via
+  // 'entityreference_prepopulate' module.
+  $language = $form['bonsai_message_email_ref']['#language'];
+  $reply_to_id = $form['bonsai_message_email_ref'][$language][0]['target_id']['#default_value'];
+  if ($reply_to_id) {
+    // The value in entityreference field is given as 'Title (id)'. We need to
+    // extract the id so that can load the node and display its title as a
+    // link. We start looking for a parenthesis from the end, just in case the
+    // title contains a parenthesis.
+    $id_start = strpos($reply_to_id, '(');
+    $reply_to_id = substr($reply_to_id, $id_start+1, -1);
+    $reply_to_node = node_load($reply_to_id);
+    $uri = entity_uri('node', $reply_to_node);
+    $uri['options'] += array('attributes' => array('target' => '_blank'));
+    $reply_to_link = l($reply_to_node->title, $uri['path'], $uri['options']);
+    $form['in_reply_to'] = array(
+      '#markup' => '<div class="alert alert-info"><span class="fa fa-info"></span>This message is in reply to: ' .$reply_to_link . '</div>',
+      '#weight' => -100,
+    );
+  }
 }
 
 /**
@@ -111,6 +170,18 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
  * )
  */
 function bonsai_node_presave($node) {
+  // Set the title to be the email's subject (up to 255 characters due to
+  // database restriction).
+  $node_wrapper = entity_metadata_wrapper('node', $node);
+  $subject = $node_wrapper->bonsai_email_subject->value();
+  if ($subject) {
+    $node_wrapper->title->set(substr($subject, 0, 255));
+  }
+  else {
+    $node_wrapper->title->set('No subject');
+  }
+
+  // Update the user reference fields.
   _bonsai_update_message_users($node);
 }
 
