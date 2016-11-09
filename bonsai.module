@@ -111,95 +111,7 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
  * )
  */
 function bonsai_node_presave($node) {
-  // We are not going to save the node here, so we are only using the entity
-  // wrapper for easily fetching field values - we're gonna do this a lot.
-  $node_wrapper = entity_metadata_wrapper('node', $node);
-
-  // The emails in minimal format.
-  $sender_email          = _bonsai_full_format_to_email($node_wrapper->bonsai_email->value());
-  $recipients_emails     = array_map('_bonsai_full_format_to_email', $node_wrapper->bonsai_emails->value());
-  $cc_recipients_emails  = array_map('_bonsai_full_format_to_email', $node_wrapper->bonsai_emails2->value());
-  $bcc_recipients_emails = array_map('_bonsai_full_format_to_email', $node_wrapper->bonsai_emails3->value());
-
-  // Get a list of all emails so that we fetch the users only once (instead of
-  // fetching the users for sender, recipients, CC recipients and BCC recipients
-  // separately). That complicates the algorithm a bit, but it can be a
-  // significant performance improvement.
-  $emails = array_merge(
-    array($sender_email),
-    $recipients_emails
-  );
-
-  if (!empty($cc_recipients_emails)) {
-    $emails = array_merge(
-      $emails,
-      $cc_recipients_emails
-    );
-  }
-
-  if (!empty($bcc_recipients_emails)) {
-    $emails = array_merge(
-      $emails,
-      $bcc_recipients_emails
-    );
-  }
-
-  $uids = _bonsai_uids_by_emails($emails);
-
-  // Nothing to do if there are no matching users.
-  if (empty($uids)) {
-    return;
-  }
-
-  $users = user_load_multiple($uids);
-
-  // We loop over found users and we check on which user reference fields they
-  // should be added to.
-  $sender_found        = FALSE;
-  $recipients_uids     = array();
-  $cc_recipients_uids  = array();
-  $bcc_recipients_uids = array();
-
-  foreach ($users as $user) {
-    // Check the sender. The sender can only ever be one, so we use a variable
-    // to track when we have found it so that we don't make unnecessary checks.
-    if (!$sender_found && $user->mail === $sender_email) {
-      $node_wrapper->bonsai_user_ref->set($user->uid);
-      $sender_found = TRUE;
-    }
-
-    // Check the recipients.
-    foreach ($recipients_emails as $email) {
-      if ($user->mail === $email) {
-        $recipients_uids[] = $user->uid;
-      }
-    }
-
-    // Check the CC recipients.
-    foreach ($cc_recipients_emails as $email) {
-      if ($user->mail === $email) {
-        $cc_recipients_uids[] = $user->uid;
-      }
-    }
-
-    // Check the BCC recipients.
-    foreach ($bcc_recipients_emails as $email) {
-      if ($user->mail === $email) {
-        $bcc_recipients_uids[] = $user->uid;
-      }
-    }
-  }
-
-  // Set the users we've found, apart from the sender we has already been set.
-  if (!empty($recipients_uids)) {
-    $node_wrapper->bonsai_users_ref->set($recipients_uids);
-  }
-  if (!empty($cc_recipients_uids)) {
-    $node_wrapper->bonsai_users_ref2->set($cc_recipients_uids);
-  }
-  if (!empty($bcc_recipients_uids)) {
-    $node_wrapper->bonsai_users_ref3->set($bcc_recipients_uids);
-  }
+  _bonsai_update_message_users($node);
 }
 
 /**
@@ -446,6 +358,19 @@ function _bonsai_queue_worker__bonsai_conversations($node_id) {
  * )
  */
 
+function _bonsai_ensure_node_wrapper($node_wrapper) {
+  // We will be using the entity wrapper for manipulating fields. If we are
+  // given the node id or the node object, wrap it in an entity wrapper.
+  if (is_numeric($node_wrapper) && is_int((int) $node_wrapper)) {
+    $node_wrapper = node_load($node_wrapper);
+  }
+  if (is_object($node_wrapper) && get_class($node_wrapper) !== 'EntityDrupalWrapper') {
+    $node_wrapper = entity_metadata_wrapper('node', $node_wrapper);
+  }
+
+  return $node_wrapper;
+}
+
 function _bonsai_email_message_exists($node_wrapper) {
   // The Bonsai library will return a NULL value when fetching emails older than
   // 3 days. Detect that and do nothing to avoid errors, even though this
@@ -544,12 +469,7 @@ function _bonsai_email_email_has_header($email_json, $header) {
 function _bonsai_node_add_attachment($attachment, $node_wrapper) {
   // We will be using the entity wrapper for manipulating fields. If we are
   // given the node id or the node object, wrap it in an entity wrapper.
-  if (is_numeric($node_wrapper) && is_int((int) $node_wrapper)) {
-    $node_wrapper = node_load($node_wrapper);
-  }
-  if (is_object($node_wrapper) && get_class($node_wrapper) !== 'EntityDrupalWrapper') {
-    $node_wrapper = entity_metadata_wrapper('node', $node_wrapper);
-  }
+  $node_wrapper = _bonsai_ensure_node_wrapper($node_wrapper);
 
   // Determine the field where the file will be attached, depending on the
   // attachment's content type.
@@ -696,6 +616,109 @@ function _bonsai_node_add_attachment($attachment, $node_wrapper) {
    * $nid = $node_wrapper->getIdentifier();
    * cache_clear_all("field:node:$nid", 'cache_field');
    */
+}
+
+/**
+ * Update the user reference fields for the given node.
+ *
+ * @Issue(
+ *   "Optimise the algorithm for updating the users corresponding to a message's
+ *   emails"
+ *   type="improvement"
+ *   priority="low"
+ *   labels="performance"
+ * )
+ */
+function _bonsai_update_message_users($node_wrapper) {
+  // We will be using the entity wrapper for manipulating fields. If we are
+  // given the node id or the node object, wrap it in an entity wrapper.
+  $node_wrapper = _bonsai_ensure_node_wrapper($node_wrapper);
+
+  // The emails in minimal format.
+  $sender_email          = _bonsai_full_format_to_email($node_wrapper->bonsai_email->value());
+  $recipients_emails     = array_map('_bonsai_full_format_to_email', $node_wrapper->bonsai_emails->value());
+  $cc_recipients_emails  = array_map('_bonsai_full_format_to_email', $node_wrapper->bonsai_emails2->value());
+  $bcc_recipients_emails = array_map('_bonsai_full_format_to_email', $node_wrapper->bonsai_emails3->value());
+
+  // Get a list of all emails so that we fetch the users only once (instead of
+  // fetching the users for sender, recipients, CC recipients and BCC recipients
+  // separately). That complicates the algorithm a bit, but it can be a
+  // significant performance improvement.
+  $emails = array_merge(
+    array($sender_email),
+    $recipients_emails
+  );
+
+  if (!empty($cc_recipients_emails)) {
+    $emails = array_merge(
+      $emails,
+      $cc_recipients_emails
+    );
+  }
+
+  if (!empty($bcc_recipients_emails)) {
+    $emails = array_merge(
+      $emails,
+      $bcc_recipients_emails
+    );
+  }
+
+  $uids = _bonsai_uids_by_emails($emails);
+
+  // Nothing to do if there are no matching users.
+  if (empty($uids)) {
+    return;
+  }
+
+  $users = user_load_multiple($uids);
+
+  // We loop over found users and we check on which user reference fields they
+  // should be added to.
+  $sender_found        = FALSE;
+  $recipients_uids     = array();
+  $cc_recipients_uids  = array();
+  $bcc_recipients_uids = array();
+
+  foreach ($users as $user) {
+    // Check the sender. The sender can only ever be one, so we use a variable
+    // to track when we have found it so that we don't make unnecessary checks.
+    if (!$sender_found && $user->mail === $sender_email) {
+      $node_wrapper->bonsai_user_ref->set($user->uid);
+      $sender_found = TRUE;
+    }
+
+    // Check the recipients.
+    foreach ($recipients_emails as $email) {
+      if ($user->mail === $email) {
+        $recipients_uids[] = $user->uid;
+      }
+    }
+
+    // Check the CC recipients.
+    foreach ($cc_recipients_emails as $email) {
+      if ($user->mail === $email) {
+        $cc_recipients_uids[] = $user->uid;
+      }
+    }
+
+    // Check the BCC recipients.
+    foreach ($bcc_recipients_emails as $email) {
+      if ($user->mail === $email) {
+        $bcc_recipients_uids[] = $user->uid;
+      }
+    }
+  }
+
+  // Set the users we've found, apart from the sender we has already been set.
+  if (!empty($recipients_uids)) {
+    $node_wrapper->bonsai_users_ref->set($recipients_uids);
+  }
+  if (!empty($cc_recipients_uids)) {
+    $node_wrapper->bonsai_users_ref2->set($cc_recipients_uids);
+  }
+  if (!empty($bcc_recipients_uids)) {
+    $node_wrapper->bonsai_users_ref3->set($bcc_recipients_uids);
+  }
 }
 
 /**

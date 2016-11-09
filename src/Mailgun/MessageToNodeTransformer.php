@@ -114,6 +114,9 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
       $node_wrapper->bonsai_boolean2 = TRUE;
     }
 
+    // User reference fields (sender and recipients).
+    _bonsai_update_message_users($node_wrapper);
+
     return $node_wrapper;
   }
 }
