@@ -73,11 +73,20 @@ function bonsai_permission() {
     'bonsai fetch attachments' => array(
       'title' => t('Fetch attachments from the source and add them to messages'),
     ),
-    'bonsai send messages' => array(
-      'title' => t('Send messages'),
+    'bonsai send any messages' => array(
+      'title' => t('Send any messages'),
     ),
-    'bonsai view messages' => array(
-      'title' => t('View messages'),
+    'bonsai send own messages' => array(
+      'title' => t('Send own messages'),
+    ),
+    'bonsai view any published messages' => array(
+      'title' => t('View any published messages'),
+    ),
+    'bonsai view any unpublished messages' => array(
+      'title' => t('View any unpublished messages'),
+    ),
+    'bonsai view own unpublished messages' => array(
+      'title' => t('View own unpublished messages'),
     ),
     'bonsai view messages source' => array(
       'title' => t('View the source of messages'),
@@ -85,6 +94,83 @@ function bonsai_permission() {
   );
 
   return $permissions;
+}
+
+/**
+ * Implements hook_node_access_records().
+ *
+ * Messages are published when sent, or when they are incoming messages. Newly
+ * created messages that are not incoming, are considered as drafts and are not
+ * published. By default, all site users (having the view published content
+ * permission) would be able to see published messages. We therefore define a
+ * realm corresponding to the 'bonsai view any messages' permission so that we
+ * can restrict view access to messages.
+ *
+ * At the same time, we want bonsai users to be able to view unpublished
+ * messages. We don't want to use the 'view unpublished content' permission
+ * since it could be too generic depending on the application. We therefore use
+ * custom 'view own/any unpublished' permissions and corresponding realms to
+ * allow bonsai users to view their own unpublished messages.
+ *
+ * Edit any/own and delete any/own permissions are defined by Drupal core per
+ * content type, so we may not need to implement that for now.
+ */
+function bonsai_node_access_records($node) {
+  $grants = array();
+
+  if ($node->type !== 'bonsai_message_email') {
+    return array();
+  }
+
+  if ($node->status) {
+      $grants[] = array(
+      'realm' => 'bonsai_view_any_messages',
+      'gid' => 1,
+      'grant_view' => 1,
+      'grant_update' => 0,
+      'grant_delete' => 0,
+      'priority' => 0,
+    );
+  }
+  else {
+    $grants[] = array(
+      'realm' => 'bonsai_view_any_unpublished_messages',
+      'gid' => 1,
+      'grant_view' => 1,
+      'grant_update' => 0,
+      'grant_delete' => 0,
+      'priority' => 0,
+    );
+    $grants[] = array(
+      'realm' => 'bonsai_view_own_unpublished_messages',
+      'gid' => $node->uid,
+      'grant_view' => 1,
+      'grant_update' => 0,
+      'grant_delete' => 0,
+      'priority' => 0,
+    );
+  }
+
+  return $grants;
+}
+
+/**
+ * Implements hook_node_grants().
+ */
+function bonsai_node_grants($account, $op) {
+  $grants = array();
+
+  if (user_access('bonsai view any published messages', $account)) {
+    $grants['bonsai_view_any_published_messages'][] = array(1);
+  }
+  if (user_access('bonsai view any unpublished messages', $account)) {
+    $grants['bonsai_view_any_unpublished_messages'][] = array(1);
+  }
+  if (user_access('bonsai view own unpublished messages')) {
+    $grants['bonsai_view_own_unpublished_messages'][] = array($account->uid);
+  }
+
+  return $grants;
 }
 
 /**

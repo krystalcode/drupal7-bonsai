@@ -126,6 +126,12 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     // User reference fields (sender and recipients).
     _bonsai_update_message_users($node_wrapper);
 
+    // Finally, set the node status to be published. We only use this
+    // transformer at the moment for incoming messages, which are therefore
+    // already sent. Not published status, which is the default when creating
+    // new message nodes, would mean that the message is a draft.
+    $node_wrapper->status = 1;
+
     return $node_wrapper;
   }
 }
