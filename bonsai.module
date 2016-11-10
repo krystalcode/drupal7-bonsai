@@ -254,6 +254,15 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
   // For new messages, and if we're replying to an existing message, we
   // prepopulate the sender and recipients fields as best we can, based on the
   // sender and the recipients of the message we're replying to.
+  /**
+   * @Issue(
+   *   "Properly prepopulate sender/recipients when replying to an email sent by
+   *   the bonsai domain"
+   *   type="improvement"
+   *   priority="low"
+   *   labels="ux"
+   * )
+   */
   if (!empty($reply_to_node)) {
     $parameters = drupal_get_query_parameters();
     if (isset($parameters['reply'])) {
