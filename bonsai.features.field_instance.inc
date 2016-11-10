@@ -335,7 +335,7 @@ function bonsai_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 12,
+      'weight' => 13,
     ),
   );
 
@@ -373,7 +373,7 @@ function bonsai_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 13,
+      'weight' => 14,
     ),
   );
 
@@ -480,7 +480,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 10,
+      'weight' => 11,
     ),
   );
 
@@ -804,7 +804,48 @@ function bonsai_field_default_field_instances() {
         'ui_edit' => 'hide',
       ),
       'type' => 'jsonb_textarea',
-      'weight' => 14,
+      'weight' => 15,
+    ),
+  );
+
+  // Exported field_instance: 'node-bonsai_message_email-bonsai_labels_ref'.
+  $field_instances['node-bonsai_message_email-bonsai_labels_ref'] = array(
+    'bundle' => 'bonsai_message_email',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 22,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'bonsai_labels_ref',
+    'label' => 'Message Labels',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'taxonomy',
+      'settings' => array(
+        'autocomplete_path' => 'taxonomy/autocomplete',
+        'size' => 60,
+      ),
+      'type' => 'taxonomy_autocomplete',
+      'weight' => 23,
     ),
   );
 
@@ -871,7 +912,7 @@ function bonsai_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 8,
+      'weight' => 9,
     ),
   );
 
@@ -997,7 +1038,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 3,
+      'weight' => 4,
     ),
   );
 
@@ -1053,7 +1094,7 @@ function bonsai_field_default_field_instances() {
         'year_range' => '-3:+3',
       ),
       'type' => 'date_text',
-      'weight' => 11,
+      'weight' => 12,
     ),
   );
 
@@ -1105,7 +1146,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 4,
+      'weight' => 5,
     ),
   );
 
@@ -1157,7 +1198,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 5,
+      'weight' => 6,
     ),
   );
 
@@ -1209,7 +1250,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 6,
+      'weight' => 7,
     ),
   );
 
@@ -1261,7 +1302,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 7,
+      'weight' => 8,
     ),
   );
 
@@ -1327,7 +1368,131 @@ function bonsai_field_default_field_instances() {
       'module' => 'og',
       'settings' => array(),
       'type' => 'og_complex',
-      'weight' => 9,
+      'weight' => 10,
+    ),
+  );
+
+  // Exported field_instance: 'node-bonsai_message_email-ogmk_blog_labels_ref'.
+  $field_instances['node-bonsai_message_email-ogmk_blog_labels_ref'] = array(
+    'bundle' => 'bonsai_message_email',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 24,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'ogmk_blog_labels_ref',
+    'label' => 'Blog Labels',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+        'autocomplete_path' => 'taxonomy/autocomplete',
+        'size' => 60,
+      ),
+      'type' => 'options_select',
+      'weight' => 26,
+    ),
+  );
+
+  // Exported field_instance: 'node-bonsai_message_email-ogmk_categories_ref'.
+  $field_instances['node-bonsai_message_email-ogmk_categories_ref'] = array(
+    'bundle' => 'bonsai_message_email',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 25,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'ogmk_categories_ref',
+    'label' => 'Product Categories',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 24,
+    ),
+  );
+
+  // Exported field_instance: 'node-bonsai_message_email-ogmk_labels_ref'.
+  $field_instances['node-bonsai_message_email-ogmk_labels_ref'] = array(
+    'bundle' => 'bonsai_message_email',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 23,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'ogmk_labels_ref',
+    'label' => 'Product Labels',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+        'autocomplete_path' => 'taxonomy/autocomplete',
+        'size' => 60,
+      ),
+      'type' => 'options_select',
+      'weight' => 25,
     ),
   );
 
@@ -1335,6 +1500,7 @@ function bonsai_field_default_field_instances() {
   // Included for use with string extractors like potx.
   t('Authentic');
   t('BCC');
+  t('Blog Labels');
   t('Body in HTML');
   t('Body in Plain Text');
   t('CC');
@@ -1350,6 +1516,9 @@ function bonsai_field_default_field_instances() {
   t('Image Attachments');
   t('In Reply To');
   t('JSON');
+  t('Message Labels');
+  t('Product Categories');
+  t('Product Labels');
   t('Spam');
   t('Subject');
   t('To');

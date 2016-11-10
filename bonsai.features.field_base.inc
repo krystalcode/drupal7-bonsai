@@ -262,6 +262,34 @@ function bonsai_field_default_field_bases() {
     'type' => 'json',
   );
 
+  // Exported field_base: 'bonsai_labels_ref'.
+  $field_bases['bonsai_labels_ref'] = array(
+    'active' => 1,
+    'cardinality' => -1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'bonsai_labels_ref',
+    'indexes' => array(
+      'tid' => array(
+        0 => 'tid',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'taxonomy',
+    'settings' => array(
+      'allowed_values' => array(
+        0 => array(
+          'vocabulary' => 'bonsai_labels',
+          'parent' => 0,
+        ),
+      ),
+      'entity_translation_sync' => FALSE,
+      'options_list_callback' => 'title_taxonomy_allowed_values',
+    ),
+    'translatable' => 0,
+    'type' => 'taxonomy_term_reference',
+  );
+
   // Exported field_base: 'bonsai_long_text'.
   $field_bases['bonsai_long_text'] = array(
     'active' => 1,

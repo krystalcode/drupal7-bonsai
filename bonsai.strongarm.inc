@@ -231,13 +231,13 @@ function bonsai_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'metatags' => array(
-          'weight' => '17',
+          'weight' => '18',
         ),
         'title' => array(
-          'weight' => '15',
+          'weight' => '16',
         ),
         'path' => array(
-          'weight' => '16',
+          'weight' => '17',
         ),
       ),
       'display' => array(
@@ -353,6 +353,13 @@ function bonsai_strongarm() {
   $strongarm->name = 'pathauto_node_bonsai_message_email_pattern';
   $strongarm->value = 'bonsai/messages/[node:nid]/[node:title]';
   $export['pathauto_node_bonsai_message_email_pattern'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'pathauto_taxonomy_term_bonsai_labels_pattern';
+  $strongarm->value = 'bonsai/labels/[term:tid]/[term:name]';
+  $export['pathauto_taxonomy_term_bonsai_labels_pattern'] = $strongarm;
 
   return $export;
 }
