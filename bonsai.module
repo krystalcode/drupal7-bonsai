@@ -125,16 +125,6 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
   // The title will be automatically generated from the subject.
   $form['title']['#access'] = FALSE;
 
-  // Set the authenticity and spam indicator fields to TRUE and FALSE
-  // correspondingly. We are creating the email, so it has to be authenic and
-  // it is not spam.
-  $language = $form['bonsai_boolean']['#language'];
-  $form['bonsai_boolean'][$language]['#default_value'] = 1;
-  $form['bonsai_boolean']['#access'] = FALSE;
-  $language = $form['bonsai_boolean2']['#language'];
-  $form['bonsai_boolean2'][$language]['#default_value'] = 0;
-  $form['bonsai_boolean2']['#access'] = FALSE;
-
   // Display an info message showing the email message that the current is a
   // reply to. We are hiding the autocomplet for the In Reply To field via
   // 'entityreference_prepopulate' module.
@@ -527,6 +517,40 @@ function _bonsai_email_email_has_header($email_json, $header) {
   }
 
   return FALSE;
+}
+
+function _bonsai_taxonomy_term_multiple_by_name(array $names, array $options = array()) {
+  $options = array_merge(
+    array(
+      'vocabulary' => 'bonsai_labels',
+      'tids_only'  => FALSE,
+    ),
+    $options
+  );
+
+  $conditions = array('name' => array_map('trim', $names));
+  if (isset($options['vocabulary'])) {
+    $vocabularies = taxonomy_vocabulary_get_names();
+    if (isset($vocabularies[$options['vocabulary']])) {
+      $conditions['vid'] = $vocabularies[$options['vocabulary']]->vid;
+    }
+    else {
+      // Return an empty array when filtering by a non-existing vocabulary.
+      return array();
+    }
+  }
+
+  $terms = taxonomy_term_load_multiple(array(), $conditions);
+
+  if (!$terms) {
+    array();
+  }
+
+  if ($options['tids_only']) {
+    return array_keys($terms);
+  }
+
+  return $terms;
 }
 
 function _bonsai_node_add_attachment($attachment, $node_wrapper) {

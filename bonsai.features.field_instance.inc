@@ -301,82 +301,6 @@ function bonsai_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-bonsai_message_email-bonsai_boolean'.
-  $field_instances['node-bonsai_message_email-bonsai_boolean'] = array(
-    'bundle' => 'bonsai_message_email',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'bonsai',
-        'settings' => array(),
-        'type' => 'bonsai_boolean',
-        'weight' => 7,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'bonsai_boolean',
-    'label' => 'Authentic',
-    'required' => 0,
-    'settings' => array(
-      'entity_translation_sync' => FALSE,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_buttons',
-      'weight' => 13,
-    ),
-  );
-
-  // Exported field_instance: 'node-bonsai_message_email-bonsai_boolean2'.
-  $field_instances['node-bonsai_message_email-bonsai_boolean2'] = array(
-    'bundle' => 'bonsai_message_email',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'bonsai',
-        'settings' => array(),
-        'type' => 'bonsai_boolean',
-        'weight' => 8,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'bonsai_boolean2',
-    'label' => 'Spam',
-    'required' => 0,
-    'settings' => array(
-      'entity_translation_sync' => FALSE,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_buttons',
-      'weight' => 14,
-    ),
-  );
-
   // Exported field_instance: 'node-bonsai_message_email-bonsai_email'.
   $field_instances['node-bonsai_message_email-bonsai_email'] = array(
     'bundle' => 'bonsai_message_email',
@@ -1498,7 +1422,6 @@ function bonsai_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Authentic');
   t('BCC');
   t('Blog Labels');
   t('Body in HTML');
@@ -1519,7 +1442,6 @@ function bonsai_field_default_field_instances() {
   t('Message Labels');
   t('Product Categories');
   t('Product Labels');
-  t('Spam');
   t('Subject');
   t('To');
 

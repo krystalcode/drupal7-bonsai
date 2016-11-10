@@ -89,6 +89,7 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
       $node_wrapper->bonsai_long_text2 = $message->{'body-html'};
     }
 
+    // Add labels - Inbox, Spam, Spoof.
     /**
      * @Issue(
      *   "Confirm that the current authenticity/spam validation is adequate"
@@ -96,23 +97,31 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
      *   priority="normal"
      *   labels="security"
      * )
+     * @Issue(
+     *   "Considering not adding the Inbox labels to Spam messages"
+     *   type="improvement"
+     *   priority="normal"
+     *   labels="ux"
+     * )
      */
+    // At the moment this transformation is only performed for incoming
+    // messages, so we can always safely direct them to Inbox.
+    $labels = array(
+      'Inbox',
+    );
 
     // Does the email look spoofed?
-    if (!empty($message->{'X-Mailgun-Dkim-Check-Result'}) && $message->{'X-Mailgun-Dkim-Check-Result'} === 'Pass') {
-      $node_wrapper->bonsai_boolean = TRUE;
-    }
-    else {
-      $node_wrapper->bonsai_boolean = FALSE;
+    if (empty($message->{'X-Mailgun-Dkim-Check-Result'}) || $message->{'X-Mailgun-Dkim-Check-Result'} !== 'Pass') {
+      $labels[] = 'Spoof';
     }
 
     // Is it spam?
-    if (!empty($message->{'X-Mailgun-Sflag'}) && $message->{'X-Mailgun-Sflag'} === 'No') {
-      $node_wrapper->bonsai_boolean2 = FALSE;
+    if (empty($message->{'X-Mailgun-Sflag'}) || $message->{'X-Mailgun-Sflag'} !== 'No') {
+      $labels[] = 'Spam';
     }
-    else {
-      $node_wrapper->bonsai_boolean2 = TRUE;
-    }
+
+    $tids = _bonsai_taxonomy_term_multiple_by_name($labels, array('tids_only' => TRUE));
+    $node_wrapper->bonsai_labels_ref = $tids;
 
     // User reference fields (sender and recipients).
     _bonsai_update_message_users($node_wrapper);
