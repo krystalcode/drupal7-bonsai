@@ -211,6 +211,19 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
   // The title will be automatically generated from the subject.
   $form['title']['#access'] = FALSE;
 
+  // Additionally, if the node is published, we don't allow updating any fields
+  // apart from the metadata fields.
+  if ($form['#node']->status) {
+    $form['bonsai_email']['#access'] = FALSE;
+    $form['bonsai_emails']['#access'] = FALSE;
+    $form['bonsai_emails2']['#access'] = FALSE;
+    $form['bonsai_emails3']['#access'] = FALSE;
+    $form['bonsai_email_subject']['#access'] = FALSE;
+    $form['bonsai_long_text2']['#access'] = FALSE;
+    $form['bonsai_files']['#access'] = FALSE;
+    $form['bonsai_images']['#access'] = FALSE;
+  }
+
   // Display an info message showing the email message that the current is a
   // reply to. We are hiding the autocomplet for the In Reply To field via
   // 'entityreference_prepopulate' module.
