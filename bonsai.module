@@ -280,8 +280,60 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
     return;
   }
 
-  // For new messages, and if we're replying to an existing message, we
-  // prepopulate the sender and recipients fields as best we can, based on the
+  // Code for reply-messages only from here on.
+  if (empty($reply_to_node)) {
+    return;
+  }
+
+  // We only prepopulate information (sender/recipients/body quote) if the
+  // 'reply' query parameter is set. If it set to 'all' we will prepopulate as
+  // much information as we can. Otherwise, we will prepopulate the Sender and
+  // one Recipient, and the body quote.
+  $query_parameters = drupal_get_query_parameters();
+  if (empty($query_parameters['reply'])) {
+    return;
+  }
+
+  $reply_to_node_wrapper = entity_metadata_wrapper('node', $reply_to_node);
+
+  // Set the subject e.g. the subject of the message we're replying to with a
+  // 'Re: ' prefix.
+  /**
+   * @Issue(
+   *   "Allow language configuration for the reply subject and quote prefixes"
+   *   type="improvement"
+   *   priority="low"
+   *   labels="ux"
+   * )
+   */
+  $language = $form['bonsai_email_subject']['#language'];
+  $form['bonsai_email_subject'][$language][0]['value']['#default_value'] = 'Re: ' . check_plain($reply_to_node_wrapper->bonsai_email_subject->value());
+
+  // 'From' and 'Date' information that will be used to create the reply quote
+  // prefix.
+  $reply_to_from = $reply_to_node_wrapper->bonsai_email->value();
+  $reply_to_date = $reply_to_node_wrapper->bonsai_timestamp->value();
+  $reply_to_date = gmdate('l, d F Y H:i:s T', $reply_to_date);
+
+  // 'Body' of the message we're replying to that will be added as a quote in
+  // the new email. We will prefer to the HTML body, with a fallback to plain
+  // text if the HTML body does not exist.
+  $reply_to_body = $reply_to_node_wrapper->bonsai_long_text2->value();
+  if ($reply_to_body) {
+    $reply_to_body = $reply_to_body['value'];
+  }
+  else {
+    $reply_to_body = $reply_to_node_wrapper->bonsai_long_text->value();
+  }
+
+  // Create the reply-to quote and insert it into the new message's HTML body.
+  $reply_to_body_quote_header = 'On ' . $reply_to_date . ', ' . htmlspecialchars($reply_to_from) . ' wrote:';
+  $reply_to_body_quote = "<p></p><p></p><p>$reply_to_body_quote_header</p><blockquote>$reply_to_body</blockquote>";
+  $language = $form['bonsai_long_text2']['#language'];
+  $form['bonsai_long_text2'][$language][0]['#format'] = 'bonsai_html';
+  $form['bonsai_long_text2'][$language][0]['#default_value'] = $reply_to_body_quote;
+
+  // Prepopulate the sender and recipients fields as best we can, based on the
   // sender and the recipients of the message we're replying to.
   /**
    * @Issue(
@@ -292,92 +344,92 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
    *   labels="ux"
    * )
    */
-  if (!empty($reply_to_node)) {
-    $parameters = drupal_get_query_parameters();
-    if (isset($parameters['reply'])) {
-      // We'll be using the sender and the recipients of the node we're replying
-      // to prepopulate the sender and the recipients of the message we're
-      // currently composing.
-      $reply_to_node_wrapper = entity_metadata_wrapper('node', $reply_to_node);
-      $reply_from            = $reply_to_node_wrapper->bonsai_email->value();
-      $reply_recipients      = $reply_to_node_wrapper->bonsai_emails->value();
-      $reply_cc_recipients   = $reply_to_node_wrapper->bonsai_emails2->value();
+  // We'll be using the sender and the recipients of the node we're replying
+  // to prepopulate the sender and the recipients of the message we're
+  // currently composing.
+  $reply_to_recipients    = $reply_to_node_wrapper->bonsai_emails->value();
+  $reply_to_cc_recipients = $reply_to_node_wrapper->bonsai_emails2->value();
 
-      // We'll try to guess the mostly likely email that the user will be
-      // sending from, as the first recipient email of the node we're replying
-      // to that belongs to the bonsai domain.
-      // The email could have been sent to many emails of that domain. We'll
-      // pick the first one. If there is no domain in the recipients, we'll
-      // check the CC recipients as well.
-      $domain   = variable_get('bonsai_domain');
-      $language = $form['bonsai_email']['#language'];
-      $from     = &$form['bonsai_email'][$language][0]['email']['#default_value'];
-      foreach ($reply_recipients as $index => $recipient) {
-        if (_bonsai_email_get_domain($recipient) === $domain) {
-          $from = $recipient;
-          // We're unsetting the item. Since we're putting it into the 'from'
-          // field, we don't want it left in te recipients to reply to as well.
-          unset($reply_recipients[$index]);
-          break;
-        }
+  // We'll try to guess the mostly likely email that the user will be
+  // sending from, as the first recipient email of the node we're replying
+  // to that belongs to the bonsai domain.
+  // The email could have been sent to many emails of that domain. We'll
+  // pick the first one. If there is no domain in the recipients, we'll
+  // check the CC recipients as well.
+  $domain   = variable_get('bonsai_domain');
+  $language = $form['bonsai_email']['#language'];
+  $from     = &$form['bonsai_email'][$language][0]['email']['#default_value'];
+  foreach ($reply_to_recipients as $index => $recipient) {
+    if (_bonsai_email_get_domain($recipient) === $domain) {
+      $from = $recipient;
+      // We're unsetting the item. Since we're putting it into the 'from'
+      // field, we don't want it left in te recipients to reply to as well.
+      unset($reply_to_recipients[$index]);
+      break;
+    }
+  }
+  if (!$from && $reply_to_cc_recipients) {
+    foreach ($reply_to_cc_recipients as $index => $cc_recipient) {
+      if (_bonsai_email_get_domain($cc_recipient) === $domain) {
+        $from = $cc_recipient;
+        // We're unsetting the item if found within the CC recipients, for
+        // the same reason we did so in the To recipients.
+        unset($reply_to_cc_recipients[$index]);
+        break;
       }
-      if (!$from && $reply_cc_recipients) {
-        foreach ($reply_cc_recipients as $index => $cc_recipient) {
-          if (_bonsai_email_get_domain($cc_recipient) === $domain) {
-            $from = $cc_recipient;
-            // We're unsetting the item if found within the CC recipients, for
-            // the same reason we did so in the To recipients.
-            unset($reply_cc_recipients[$index]);
-            break;
-          }
-        }
+    }
+  }
+
+  // We set the first recipient, which will always be the the sender of the
+  // email we're replying to.
+  $form['bonsai_emails'][$language][0]['email']['#default_value'] = $reply_to_from;
+
+  // If the query parameter is set to 'all', we want to reply not only to
+  // the sender, but to all To and CC recipients as well.
+  /**
+   * @Issue(
+   *   "The reply-to prepopulated recipients do not appear in the specified
+   *   order"
+   *   type="bug"
+   *   priority="low"
+   *   labels="ux"
+   * )
+   * @Issue(
+   *   "Trying to remove a prepopulated recipient results in an error"
+   *   type="bug"
+   *   priority="low"
+   *   labels="ux"
+   * )
+   * @Issue(
+   *   "When creating new items in multi-value email form elements, do we need
+   *   to set the value in $form['#node'] as well?"
+   *   type="bug"
+   *   priority="low"
+   *   notes="https://www.drupal.org/node/2017457"
+   * )
+   */
+  if ($query_parameters['reply'] === 'all') {
+    // To recipients.
+    if ($reply_to_recipients) {
+      $language   = $form['bonsai_emails']['#language'];
+      $field_item = $form['bonsai_emails'][$language][0];
+      foreach ($reply_to_recipients as $index => $recipient) {
+        // We're storing items in $index+1 position since the 0 position is
+        // already set to the sender of the email we're replying to.
+        $form['bonsai_emails'][$language][$index+1] = $field_item;
+        $form['bonsai_emails'][$language][$index+1]['email']['#default_value'] = $recipient;
       }
+    }
 
-      // We set the first recipient, which will always be the the sender of the
-      // email we're replying to.
-      $form['bonsai_emails'][$language][0]['email']['#default_value'] = $reply_from;
-
-      // If the query parameter is set to 'all', we want to reply not only to
-      // the sender, but to all To and CC recipients as well.
-      /**
-       * @Issue(
-       *   "The reply-to prepopulated recipients do not appear in the specified
-       *   order"
-       *   type="bug"
-       *   priority="low"
-       *   labels="ux"
-       * )
-       * @Issue(
-       *   "Trying to remove a prepopulated recipient results in an error"
-       *   type="bug"
-       *   priority="low"
-       *   labels="ux"
-       * )
-       */
-      if ($parameters['reply'] === 'all') {
-        // To recipients.
-        if ($reply_recipients) {
-          $language   = $form['bonsai_emails']['#language'];
-          $field_item = $form['bonsai_emails'][$language][0];
-          foreach ($reply_recipients as $index => $recipient) {
-            // We're storing items in $index+1 position since the 0 position is
-            // already set to the sender of the email we're replying to.
-            $form['bonsai_emails'][$language][$index+1] = $field_item;
-            $form['bonsai_emails'][$language][$index+1]['email']['#default_value'] = $recipient;
-          }
+    // CC recipients.
+    if ($reply_to_cc_recipients) {
+      $language   = $form['bonsai_emails2']['#language'];
+      $field_item = $form['bonsai_emails2'][$language][0];
+      foreach ($reply_to_cc_recipients as $index => $cc_recipient) {
+        if ($index > 0) {
+          $form['bonsai_emails2'][$language][$index] = $cc_field_item;
         }
-
-        // CC recipients.
-        if ($reply_cc_recipients) {
-          $language   = $form['bonsai_emails2']['#language'];
-          $field_item = $form['bonsai_emails2'][$language][0];
-          foreach ($reply_cc_recipients as $index => $cc_recipient) {
-            if ($index > 0) {
-              $form['bonsai_emails2'][$language][$index] = $cc_field_item;
-            }
-            $form['bonsai_emails2'][$language][$index]['email']['#default_value'] = $cc_recipient;
-          }
-        }
+        $form['bonsai_emails2'][$language][$index]['email']['#default_value'] = $cc_recipient;
       }
     }
   }
