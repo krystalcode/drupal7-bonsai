@@ -78,6 +78,17 @@ function bonsai_menu() {
     'file path' => drupal_get_path('module', 'bonsai'),
   );
 
+  // Menu item for cloning messages.
+  $items['bonsai/messages/%node/clone'] = array(
+    'title' => 'Clone Message',
+    'page callback' => '_bonsai_messages_clone_page',
+    'page arguments' => array(2),
+    'access callback' => '_bonsai_messages_clone_access',
+    'access arguments' => array(2),
+    'file' => 'includes/bonsai.pages.inc',
+    'file path' => drupal_get_path('module', 'bonsai'),
+  );
+
   return $items;
 }
 
@@ -1430,4 +1441,9 @@ function _bonsai_attachments_add_access($node) {
 function _bonsai_messages_send_access($node) {
   // Check if the user has the right permissions to send the message.
   return bonsai_can_send_message($node);
+}
+
+function _bonsai_messages_clone_access($node) {
+  // Check if the user has the right permissions to clone the message.
+  return node_access('view', $node) && user_access('create bonsai_message_email content');
 }

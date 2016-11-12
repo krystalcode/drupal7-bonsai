@@ -155,3 +155,75 @@ function _bonsai_messages_send_page($node) {
   // Go back to the node page.
   drupal_goto('node/' . $node_wrapper->getIdentifier());
 }
+
+function _bonsai_messages_clone_page($existing_node) {
+  // Attachments are meant to be added via a POST request.
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    //drupal_not_found();
+    //return;
+  }
+
+  // Currently only the node type provided by this module is supported.
+  if (empty($existing_node) || $existing_node->type !== 'bonsai_message_email') {
+    drupal_not_found();
+    return;
+  }
+
+  // We have already checked whether the user has permissions to send the
+  // requested message in the corresponding access callback. So let's go ahead
+  // and create the cloned message.
+
+  // Create a new node for storing the cloned message.
+  $cloned_node = entity_create('node', array('type' => 'bonsai_message_email'));
+
+  // We assign the current user as the author of the new node.
+  global $user;
+  $cloned_node->uid = $user->uid;
+
+  // We'll be using an entity wrapper for getting field values more easily.
+  $existing_node_wrapper = entity_metadata_wrapper('node', $existing_node);
+  $cloned_node_wrapper   = entity_metadata_wrapper('node', $cloned_node);
+
+  // We will be copying the email's content e.g. sender, recipients, subject and
+  // body. The purpose of cloning is to create a new email message that will be
+  // sent separately, so the source of the email will not be copied since it
+  // will obtain its own when it will be delivered.
+  // We will also copy the metadata, but without the 'Sent' label since the
+  // cloned message will be a draft.
+
+  $cloned_node_wrapper->bonsai_email            = $existing_node_wrapper->bonsai_email->value();
+  $cloned_node_wrapper->bonsai_emails           = $existing_node_wrapper->bonsai_emails->value();
+  $cloned_node_wrapper->bonsai_emails2          = $existing_node_wrapper->bonsai_emails2->value();
+  $cloned_node_wrapper->bonsai_emails3          = $existing_node_wrapper->bonsai_emails3->value();
+  $cloned_node_wrapper->bonsai_email_subject    = $existing_node_wrapper->bonsai_email_subject->value();
+  $cloned_node_wrapper->bonsai_long_text        = $existing_node_wrapper->bonsai_long_text->value();
+  $cloned_node_wrapper->bonsai_long_text2       = $existing_node_wrapper->bonsai_long_text2->value();
+  $cloned_node_wrapper->bonsai_labels_ref       = $existing_node_wrapper->bonsai_labels_ref->value();
+  $cloned_node_wrapper->ogmk_categories_ref     = $existing_node_wrapper->ogmk_categories_ref->value();
+  $cloned_node_wrapper->ogmk_labels_ref         = $existing_node_wrapper->ogmk_labels_ref->value();
+  $cloned_node_wrapper->ogmk_blog_labels_ref    = $existing_node_wrapper->ogmk_blog_labels_ref->value();
+  $cloned_node_wrapper->bonsai_message_email_ref= $existing_node_wrapper->bonsai_message_email_ref->value();
+
+  // We are not copying the user reference and title fields since they will be
+  // populated anyway during execution of hook_node_presave().
+
+  /**
+   * @Issue(
+   *   "Remove 'Sent' label from cloned messages"
+   *   type="bug"
+   *   priority="low"
+   *   labels="ux"
+   * )
+   * @Issue(
+   *   "Clone attachments as well when cloning messages"
+   *   type="bug"
+   *   priority="normal"
+   *   labels="ux"
+   * )
+   */
+
+  $cloned_node_wrapper->save();
+
+  //
+  drupal_goto('node/' . $cloned_node_wrapper->getIdentifier());
+}
