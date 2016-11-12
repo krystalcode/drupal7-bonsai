@@ -152,7 +152,7 @@ function bonsai_node_access_records($node) {
 
   if ($node->status) {
       $grants[] = array(
-      'realm' => 'bonsai_view_any_messages',
+      'realm' => 'bonsai_view_any_published_messages',
       'gid' => 1,
       'grant_view' => 1,
       'grant_update' => 0,
