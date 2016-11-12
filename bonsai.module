@@ -239,9 +239,10 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
   // The title will be automatically generated from the subject.
   $form['title']['#access'] = FALSE;
 
-  // Additionally, if the node is published, we don't allow updating any fields
-  // apart from the metadata fields.
-  if ($form['#node']->status) {
+  // Additionally, if the node is published, or if it is a draft awaiting
+  // delivery, we don't allow updating any fields apart from the metadata
+  // fields.
+  if ($form['#node']->status || !empty($form['#node']->bonsai_email_id)) {
     $form['bonsai_email']['#access'] = FALSE;
     $form['bonsai_emails']['#access'] = FALSE;
     $form['bonsai_emails2']['#access'] = FALSE;
