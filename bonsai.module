@@ -598,6 +598,14 @@ function _bonsai_cron__bonsai_messages_delivered() {
     }
 
     $node_wrapper = entity_metadata_wrapper('node', $node);
+    // If the node was found, we check if it has already been published. If it
+    // does, it means that the node has already been updated - skip it.
+    if ($node_wrapper->status->value()) {
+      continue;
+    }
+
+    // If the node is unpublished but it has JSON source, there is something
+    // wrong. Log an error message and skip.
     if ($node_wrapper->bonsai_json->value()) {
       watchdog(
         'bonsai',
