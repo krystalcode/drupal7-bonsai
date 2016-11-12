@@ -539,7 +539,7 @@ function _bonsai_cron__bonsai_messages_incoming() {
      *   priority="performance"
      * )
      */
-    $node_exists = _bonsai_email_message_exists($message);
+    $node_exists = _bonsai_email_message_exists($message, TRUE);
     if ($node_exists) {
       return;
     }
@@ -750,7 +750,7 @@ function _bonsai_queue_worker__bonsai_messages_incoming($node_wrapper) {
   // Make sure that the message does not already exists. This shouldn't happen
   // since we check before creating the queue item as well, but it is good to
   // double check to prevent duplicate messages in the case of a regression bug.
-  $node_exists = _bonsai_email_message_exists($node_wrapper);
+  $node_exists = _bonsai_email_message_exists($node_wrapper, TRUE);
   if ($node_exists) {
     return;
   }
@@ -934,30 +934,9 @@ function _bonsai_ensure_node_wrapper($node_wrapper) {
   return $node_wrapper;
 }
 
-function _bonsai_email_message_exists($node_wrapper) {
-  // The Bonsai library will return a NULL value when fetching emails older than
-  // 3 days. Detect that and do nothing to avoid errors, even though this
-  // function is not/should not be called in such cases.
-  if (empty($node_wrapper)) {
-    return;
-  }
-
+function _bonsai_email_message_exists($node_wrapper, $access_bypass = FALSE) {
   $email_id = $node_wrapper->bonsai_email_id->value();
-
-  $query = new EntityFieldQuery();
-  $query
-    ->entityCondition('entity_type', 'node')
-    ->propertyCondition('type', 'bonsai_message_email')
-    ->fieldCondition('bonsai_email_id', 'value', $email_id)
-    ->range(0, 1)
-  ;
-  $result = $query->execute();
-
-  if (empty($result['node'])) {
-    return FALSE;
-  }
-
-  return TRUE;
+  return _bonsai_message_node_id_by_email_id($email_id, $access_bypass);
 }
 
 function _bonsai_message_node_id_by_email_id($email_id, $access_bypass = FALSE) {
