@@ -10,6 +10,7 @@ include_once 'includes/bonsai.field_formatter.inc';
 
 // External dependencies.
 use Bonsai\Mailgun\Repository;
+use Mailgun\Connection\Exceptions\MissingEndpoint;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 // Internal dependencies.
@@ -1123,7 +1124,16 @@ function _bonsai_node_add_attachment($attachment, $node_wrapper) {
 
   // Download and save the file.
   $client = bonsai_get_client();
-  $response = $client->get($attachment->url);
+  try {
+    $response = $client->get($attachment->url);
+  }
+  catch (MissingEndpoint $e) {
+    drupal_set_message(
+      t('The attachment could not be retrieved from the email service provider, most likely because it is not available anymore. Email attachments are available for retrieval for 3 days after the email was sent.'),
+      'error'
+    );
+    return;
+  }
   if ($response->http_response_code !== 200) {
     watchdog(
       'bonsai',
