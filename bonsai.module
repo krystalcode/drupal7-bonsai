@@ -40,6 +40,11 @@ use Drupal\bonsai\Mailgun\MessageToNodeTransformer;
  *   type="improvement"
  *   priority="normal"
  * )
+ * @Issue(
+ *   "Detect when delivery fails and allow sending the email again"
+ *   type="bug"
+ *   priority="normal"
+ * )
  */
 
 
@@ -60,6 +65,17 @@ function bonsai_menu() {
     'page arguments' => array(2),
     'access callback' => '_bonsai_attachments_add_access',
     'access arguments' => array(2),
+  );
+
+  // Menu item for sending messages.
+  $items['bonsai/messages/%node/send'] = array(
+    'title' => 'Send Message',
+    'page callback' => '_bonsai_messages_send_page',
+    'page arguments' => array(2),
+    'access callback' => '_bonsai_messages_send_access',
+    'access arguments' => array(2),
+    'file' => 'includes/bonsai.pages.inc',
+    'file path' => drupal_get_path('module', 'bonsai'),
   );
 
   return $items;
@@ -376,13 +392,51 @@ function bonsai_node_presave($node) {
 /**
  * Implements hook_cron().
  *
- * Defines a cron item for regularly fetching new messages from the email
- * service provider.
+ * Defines a cron item for regularly fetching incoming or delivered messages
+ * from the email service provider.
  */
 function bonsai_cron() {
-  // Fetch new messages from the email service provider.
+  _bonsai_cron__bonsai_messages_incoming();
+  _bonsai_cron__bonsai_messages_delivered();
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function bonsai_cron_queue_info() {
+  $items = array();
+
+  // Queue for processing newly fetched messages.
+  $items['bonsai_messages_incoming'] = array(
+    'worker callback' => '_bonsai_queue_worker__bonsai_messages_incoming',
+  );
+
+  // Queue for processing newly fetched messages.
+  $items['bonsai_messages_delivered'] = array(
+    'worker callback' => '_bonsai_queue_worker__bonsai_messages_delivered',
+  );
+
+  // Queue for detecting the parents of an email. It may also be used to add a
+  // message to a new or existing conversation.
+  $items['bonsai_conversations'] = array(
+    'worker callback' => '_bonsai_queue_worker__bonsai_conversations',
+  );
+
+  return $items;
+}
+
+
+/**
+ * Hooks - indirect implementations.
+ */
+
+/**
+ * Implements hook_cron via bonsai_cron().
+ */
+function _bonsai_cron__bonsai_messages_incoming() {
+  // Fetch incoming messages from the email service provider.
   $domain     = variable_get('bonsai_domain');
-  $repository = bonsai_get_repository();
+  $repository = bonsai_get_repository(array('transform_messages' => TRUE));
   $messages   = $repository->getList(
     array(
       'domain' => $domain,
@@ -403,7 +457,7 @@ function bonsai_cron() {
     return;
   }
 
-  $queue = DrupalQueue::get('bonsai_messages');
+  $queue = DrupalQueue::get('bonsai_messages_incoming');
 
   // Store each message to the queue for separately processing it later.
   foreach ($messages as $message) {
@@ -430,23 +484,75 @@ function bonsai_cron() {
 }
 
 /**
- * Implements hook_cron_queue_info().
+ * Implements hook_cron via bonsai_cron().
  */
-function bonsai_cron_queue_info() {
-  $items = array();
-
-  // Queue for processing newly fetched messages.
-  $items['bonsai_messages'] = array(
-    'worker callback' => '_bonsai_queue_worker__bonsai_messages',
+function _bonsai_cron__bonsai_messages_delivered() {
+  // Fetch delivered messages from the email service provider.
+  $domain     = variable_get('bonsai_domain');
+  $repository = bonsai_get_repository();
+  $messages   = $repository->getList(
+    array(
+      'domain'     => $domain,
+      'event_type' => 'delivered',
+      'limit'      => variable_get('bonsai_cron_messages_limit', 100),
+    )
   );
 
-  // Queue for detecting the parents of an email. It may also be used to add a
-  // message to a new or existing conversation.
-  $items['bonsai_conversations'] = array(
-    'worker callback' => '_bonsai_queue_worker__bonsai_conversations',
-  );
+  if (empty($messages)) {
+    return;
+  }
 
-  return $items;
+  $queue = DrupalQueue::get('bonsai_messages_delivered');
+
+  // Store each message to the queue for separately processing it later.
+  foreach ($messages as $message) {
+    if (empty($message)) {
+      continue;
+    }
+
+    // Do not reprocess delivered message nodes that have already been updated.
+    /**
+     * @Issue(
+     *   "Use an EventSubscriber for filtering out delivered messages that have
+     *   already been processed"
+     *   type="improvement"
+     *   priority="performance"
+     * )
+     */
+    $node = _bonsai_message_node_by_email_id($message->{'Message-Id'}, TRUE);
+    if (!$node) {
+      watchdog(
+        'bonsai',
+        'No node was found for the delivered message with ID "@message_id".',
+        array(
+          '@message_id' => _bonsai_email_trim_email_id($message->{'Message-Id'}),
+        ),
+        WATCHDOG_ERROR
+      );
+      continue;
+    }
+
+    $node_wrapper = entity_metadata_wrapper('node', $node);
+    if ($node_wrapper->bonsai_json->value()) {
+      watchdog(
+        'bonsai',
+        'Trying to update a node (!node_id) that contains email JSON source with the details of the delivered message with email ID "@message_id".',
+        array(
+          '!node_id' => $node_wrapper->getIdentifier(),
+          '@message_id' => _bonsai_email_trim_email_id($message->{'Message-Id'})
+        ),
+        WATCHDOG_ERROR
+      );
+      continue;
+    }
+
+    $update_info = array(
+      'node_id' => $node_wrapper->getIdentifier(),
+      'message' => json_encode($message),
+    );
+
+    $queue->createItem($update_info);
+  }
 }
 
 
@@ -478,14 +584,79 @@ function bonsai_get_client() {
  * Only Mailgun is supported at the moment, so we create and return the
  * repository directly.
  */
-function bonsai_get_repository() {
-  $api_key     = variable_get('bonsai_mailgun_api_key');
-  $client      = bonsai_get_client();
-  $dispatcher  = new EventDispatcher();
-  $transformer = new MessageToNodeTransformer();
-  $repository  = new Repository($client, $dispatcher, $api_key, $transformer);
+function bonsai_get_repository(array $options = array()) {
+  $options = array_merge(
+    array(
+      'dispatch_events'    => FALSE,
+      'transform_messages' => FALSE,
+    ),
+    $options
+  );
 
-  return $repository;
+  $api_key = variable_get('bonsai_mailgun_api_key');
+  $client  = bonsai_get_client();
+
+  // The caller may provide an Event Dispatcher that will be used to dispatch
+  // events for modifying Mailgun Events before the Bonsai PHP library fetches
+  // the messages corresponding to them.
+  $dispatcher = NULL;
+  if ($options['dispatch_events']) {
+    $dispatcher  = new EventDispatcher();
+  }
+
+  // The caller may provide a Message Transformer which will be used by the
+  // Bonsai PHP library to transform the Mailgun Messages into a desired format
+  // e.g. a Drupal node, before returning them.
+  $transformer = NULL;
+  if ($options['transform_messages']) {
+    $transformer = new MessageToNodeTransformer();
+  }
+
+  return new Repository($client, $api_key, $dispatcher, $transformer);
+}
+
+function bonsai_can_send_message($node, $account = NULL) {
+  // An already published (and therefore sent) message cannot be sent again. The
+  // user would have to clone the message, or create a new one, and send that
+  // instead.
+  /**
+   * @Issue(
+   *   "Implement re-send functionality as automatically cloning the message and
+   *   sending the new one"
+   *   type="feature"
+   *   priority="low"
+   *   lables="ux"
+   */
+  if ($node->status) {
+    return FALSE;
+  }
+
+  // We also don't allow sending messages that are already sent but are still
+  // awaiting to be delivered, which means they are still in unpublished status.
+  // When a message is queued for delivery, the email ID is stored in the node
+  // but the node remains unpublished and the JSON source is not available
+  // yet. Only checking that the node is unpublished (done above) should be
+  // enough though - otherwise there is an error elsewhere in the code.
+  $node_wrapper = entity_metadata_wrapper('node', $node);
+  if ($node_wrapper->bonsai_email_id->value()) {
+    return FALSE;
+  }
+
+  // Allow users that can send any message.
+  if (user_access('bonsai send any messages', $account)) {
+    return TRUE;
+  }
+
+  // Allow users that can send their own messages (messages they have created).
+  global $user;
+  if (!isset($account)) {
+    $account = $user;
+  }
+  if ($node->uid == $account->uid && user_access('bonsai send own messages')) {
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 
@@ -506,7 +677,7 @@ function bonsai_get_repository() {
  *   priority="low"
  * )
  */
-function _bonsai_queue_worker__bonsai_messages($node_wrapper) {
+function _bonsai_queue_worker__bonsai_messages_incoming($node_wrapper) {
   if (empty($node_wrapper)) {
     return;
   }
@@ -549,6 +720,74 @@ function _bonsai_queue_worker__bonsai_messages($node_wrapper) {
     $queue = DrupalQueue::get('bonsai_conversations');
     $queue->createItem($node_wrapper->getIdentifier());
   }
+}
+
+/**
+ * Implements callback_queue_worker().
+ *
+ * Given a node ID and the JSON source of a delivered email, update the node
+ * with relevant information from the source. The purpose is to update draft
+ * email message nodes once they have been delivered and mark them as published.
+ */
+function _bonsai_queue_worker__bonsai_messages_delivered($update_info) {
+  if (empty($update_info)) {
+    return;
+  }
+
+  // Validate that we have the required data available.
+  if (empty($update_info['node_id']) || empty($update_info['message'])) {
+    throw new \Exception('Not all required data is available for processing an item of the "bonsai_messages_delivered" queue');
+  }
+
+
+  $messageId    = $update_info['message']->{'Message-Id'};
+  $node         = node_load($update_info['node_id']);
+  $node_wrapper = entity_metadata_wrapper('node', $node);
+
+  // Check that the node is not already published and that the JSON message is
+  // not stored. If one of those conditions is true, there is something wrong
+  // and we shouldn't be here.
+  /**
+   * @Issue(
+   *   "Should we be throwing exceptions or only log errors when processing
+   *   queue items?"
+   *   type="task"
+   *   priority="low"
+   *   labels="error handling, investigation"
+   * )
+   */
+  if ($node_wrapper->status->value()) {
+    watchdog(
+      'bonsai',
+      'Trying to update an already published node (!node_id) with the details of the delivered message with email ID "@message_id". The full delivered message is: "@message"',
+      array(
+        '!node_id'    => $node_wrapper->getIdentifier(),
+        '@message_id' => $messageId,
+        '@message'    => $update_info['message'],
+      ),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+  if ($node_wrapper->bonsai_json->value()) {
+    watchdog(
+      'bonsai',
+      'Trying to update a node (!node_id) that contains email JSON source with the details of the delivered message with email ID "@message_id".',
+      array(
+        '!node_id'    => $node_wrapper->getIdentifier(),
+        '@message_id' => $messageId,
+        '@message'    => $update_info['message'],
+      ),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+
+  $message     = json_decode($update_info['message']);
+  $transformer = new MessageToNodeTransformer();
+  $transformer->transform($message, array('node' => $node_wrapper));
+
+  $node_wrapper->save();
 }
 
 /**
@@ -656,6 +895,42 @@ function _bonsai_email_message_exists($node_wrapper) {
   return TRUE;
 }
 
+function _bonsai_message_node_id_by_email_id($email_id, $access_bypass = FALSE) {
+  $email_id = _bonsai_email_trim_email_id($email_id);
+
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->fieldCondition('bonsai_email_id', 'value', $email_id)
+    ->range(0, 1)
+  ;
+
+  // Queue processing via cron runs as anonymous users. They are therefore
+  // always denied access to view messages, published or unpublished. In such
+  // cases we want to allow bypassing access control.
+  if ($access_bypass) {
+    $query->addTag(DANGEROUS_ACCESS_CHECK_OPT_OUT);
+  }
+
+  $result = $query->execute();
+
+  if (empty($result['node'])) {
+    return FALSE;
+  }
+
+  return key($result['node']);
+}
+
+function _bonsai_message_node_by_email_id($email_id, $access_bypass = FALSE) {
+  $node_id = _bonsai_message_node_id_by_email_id($email_id, $access_bypass);
+
+  if ($node_id) {
+    return node_load($node_id);
+  }
+
+  return FALSE;
+}
+
 function _bonsai_email_trim_email_id($email_id) {
   return trim($email_id, '<>');
 }
@@ -665,6 +940,32 @@ function _bonsai_email_get_domain($email) {
   $email_parts = explode('@', $email);
 
   return end($email_parts);
+}
+
+function _bonsai_message_add_labels($node_wrapper, $labels) {
+  if (!$labels) {
+    return;
+  }
+
+  $node_wrapper = _bonsai_ensure_node_wrapper($node_wrapper);
+
+  $current_terms = $node_wrapper->bonsai_labels_ref->value();
+  if ($current_terms) {
+    $current_labels = array();
+    foreach ($current_terms as $term) {
+      $current_labels[] = $term->name;
+    }
+    $labels = array_diff($labels, $current_labels);
+  }
+
+  if (!$labels) {
+    return;
+  }
+
+  $new_terms = _bonsai_taxonomy_term_multiple_by_name($labels);
+  $new_terms = $current_terms + $new_terms;
+
+  $node_wrapper->bonsai_labels_ref->set($new_terms);
 }
 
 function _bonsai_email_email_has_parent($email_id) {
@@ -1124,4 +1425,9 @@ function _bonsai_attachments_add_access($node) {
    * )
    */
   return node_access('update', $node) && user_access('bonsai fetch attachments');
+}
+
+function _bonsai_messages_send_access($node) {
+  // Check if the user has the right permissions to send the message.
+  return bonsai_can_send_message($node);
 }

@@ -6,7 +6,26 @@ namespace Drupal\bonsai\Mailgun;
 use Bonsai\MessageTransformerInterface;
 
 class MessageToNodeTransformer implements MessageTransformerInterface {
-  public function transform($message) {
+  public function transform($message, array $options = array()) {
+    // If we are given a node, we are updating a draft message awaiting for
+    // delivery. Otherwise it is an incoming email and we are creating a new
+    // node for storing it.
+    if (empty($options['node'])) {
+      return $this->createNode($message);
+    }
+
+    return $this->updateNode($message, $options['node']);
+  }
+
+  private function createNode($message) {
+    // Create a node for storing the message.
+    $node = entity_create('node', array('type' => 'bonsai_message_email'));
+
+    // We always assign the superuser as the owner of the email to indicate that
+    // the node was created automatically as an incoming email and not by a user
+    // in the system.
+    $node->uid = 1;
+
     // Convert the time to a unix timestamp so that we can store it in a date
     // field of unix timestamp type.
     $time = strtotime($message->{'Date'});
@@ -14,14 +33,6 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     // Get the recipients' emails.
     $recipients = explode(',', $message->{'To'});
     $recipients = array_map('trim', $recipients);
-
-    // Create a node for storing the message.
-    $node = entity_create('node', array('type' => 'bonsai_message_email'));
-
-    // We always assign the superuser as the owner of the email to indicate that
-    // the node was created automatically. We may change this when the we create
-    // nodes for messages send by from within the system.
-    $node->uid = 1;
 
     // The title fiels is mandatory for nodes. If the email does not have a
     // subject, we store a placeholder field.
@@ -48,8 +59,8 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     $node_wrapper->bonsai_email_id  = _bonsai_email_trim_email_id($message->{'Message-Id'});
     $node_wrapper->bonsai_email     = $message->{'From'};
     $node_wrapper->bonsai_emails    = $recipients;
-    $node_wrapper->bonsai_timestamp = $time;
     $node_wrapper->bonsai_json      = json_encode($message);
+    $node_wrapper->bonsai_timestamp = $time;
 
     /**
      * @Issue(
@@ -86,7 +97,7 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
       $node_wrapper->bonsai_long_text = $message->{'body-plain'};
     }
     if (!empty($message->{'body-html'})) {
-      $node_wrapper->bonsai_long_text2 = $message->{'body-html'};
+      $node_wrapper->bonsai_long_text2->value = $message->{'body-html'};
     }
 
     // Add labels - Inbox, Spam, Spoof.
@@ -104,8 +115,8 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
      *   labels="ux"
      * )
      */
-    // At the moment this transformation is only performed for incoming
-    // messages, so we can always safely direct them to Inbox.
+    // We are dealing with incoming emails only here, so we can always safely
+    // direct them to Inbox.
     $labels = array(
       'Inbox',
     );
@@ -116,7 +127,7 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     }
 
     // Is it spam?
-    if (empty($message->{'X-Mailgun-Sflag'}) || $message->{'X-Mailgun-Sflag'} !== 'No') {
+    if (!empty($message->{'X-Mailgun-Sflag'}) && $message->{'X-Mailgun-Sflag'} !== 'No') {
       $labels[] = 'Spam';
     }
 
@@ -126,10 +137,52 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     // User reference fields (sender and recipients).
     _bonsai_update_message_users($node_wrapper);
 
-    // Finally, set the node status to be published. We only use this
-    // transformer at the moment for incoming messages, which are therefore
-    // already sent. Not published status, which is the default when creating
-    // new message nodes, would mean that the message is a draft.
+    // Finally, set the node status to be published since incoming messages can
+    // never be drafts.
+    $node_wrapper->status = 1;
+
+    return $node_wrapper;
+  }
+
+  private function updateNode($message, $node_wrapper) {
+    $node_wrapper = _bonsai_ensure_node_wrapper($node_wrapper);
+
+    // We want to ensure that we are storing the email details on a node that is
+    // already associated to this email. If not, it's a programming error and we
+    // throw an exception.
+    if ($node_wrapper->bonsai_email_id->value() !== _bonsai_email_trim_email_id($message->{'Message-Id'})) {
+      throw new \Exception(
+        sprintf(
+          'Trying to update a node (ID: "%s") with the information of an email that is not associated with it (ID: "%s").',
+          $node_wrapper->bonsai_email_id->value(),
+          _bonsai_email_trim_email_id($message->{'Message-Id'})
+        )
+      );
+    }
+
+    // Set the JSON source of the message.
+    /**
+     * @Issue(
+     *   "Store the raw email source as well for delivered messages"
+     *   type="bug"
+     *   priority="normal"
+     *   labels="priority"
+     * )
+     */
+    $node_wrapper->bonsai_json = json_encode($message);
+
+    // We're only sending HTML body, but Mailgun creates a plain text version of
+    // it before sending it. Add this to the corresponding field as well.
+    $node_wrapper->bonsai_long_text = $message->{'body-plain'};
+
+    // Add the Sent label. The node message is only added to the Sent folder
+    // (via the Sent label) only after it has successfully been
+    // delivered. Otherwise it stays on the Drafts folder, with a notcie that it
+    // is awaiting for delivery.
+    _bonsai_message_add_labels($node_wrapper, array('Sent'));
+
+    // Finally, set the node status to be published since we know it is now
+    // delivered.
     $node_wrapper->status = 1;
 
     return $node_wrapper;
