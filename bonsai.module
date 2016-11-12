@@ -945,6 +945,7 @@ function _bonsai_message_node_id_by_email_id($email_id, $access_bypass = FALSE) 
   $query = new EntityFieldQuery();
   $query
     ->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'bonsai_message_email')
     ->fieldCondition('bonsai_email_id', 'value', $email_id)
     ->range(0, 1)
   ;
