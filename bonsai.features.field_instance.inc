@@ -1420,6 +1420,44 @@ function bonsai_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'user-user-bonsai_boolean'.
+  $field_instances['user-user-bonsai_boolean'] = array(
+    'bundle' => 'user',
+    'default_value' => array(
+      0 => array(
+        'value' => 1,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 14,
+      ),
+    ),
+    'entity_type' => 'user',
+    'field_name' => 'bonsai_boolean',
+    'label' => 'Newsletter',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'user_register_form' => 0,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 0,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 13,
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('BCC');
@@ -1440,6 +1478,7 @@ function bonsai_field_default_field_instances() {
   t('In Reply To');
   t('JSON');
   t('Message Labels');
+  t('Newsletter');
   t('Product Categories');
   t('Product Labels');
   t('Subject');
