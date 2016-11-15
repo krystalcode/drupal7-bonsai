@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Bonsai module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function bonsai_schema() {
+  $schema = array();
+
+  $schema['bonsai_event'] = array(
+    'description' => 'Storage for Bonsai events.',
+    'fields' => array(
+      'eid' => array(
+        'description' => 'The primary identifier for an event.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => 'The type of this event.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'time' => array(
+        'description' => 'The Unix timestamp when the event occurred.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'content' => array(
+        'description' => 'The content of the event which should be in JSON format.',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'bonsai_event_time'   => array('time'),
+      'bonsai_event_type'   => array(array('type' => 4)),
+    ),
+    'primary key' => array('eid'),
+  );
+}
