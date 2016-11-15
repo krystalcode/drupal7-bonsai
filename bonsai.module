@@ -439,6 +439,10 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
  * Implements hook_node_presave().
  */
 function bonsai_node_presave($node) {
+  if ($node->type !== 'bonsai_message_email') {
+    return;
+  }
+
   // Set the title to be the email's subject (up to 255 characters due to
   // database restriction).
   $node_wrapper = entity_metadata_wrapper('node', $node);
