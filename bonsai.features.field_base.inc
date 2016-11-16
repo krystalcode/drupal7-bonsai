@@ -264,13 +264,13 @@ function bonsai_field_default_field_bases() {
     'type' => 'taxonomy_term_reference',
   );
 
-  // Exported field_base: 'bonsai_long_text'.
-  $field_bases['bonsai_long_text'] = array(
+  // Exported field_base: 'bonsai_text_long'.
+  $field_bases['bonsai_text_long'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'bonsai_long_text',
+    'field_name' => 'bonsai_text_long',
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -285,13 +285,13 @@ function bonsai_field_default_field_bases() {
     'type' => 'text_long',
   );
 
-  // Exported field_base: 'bonsai_long_text2'.
-  $field_bases['bonsai_long_text2'] = array(
+  // Exported field_base: 'bonsai_text_long2'.
+  $field_bases['bonsai_text_long2'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'bonsai_long_text2',
+    'field_name' => 'bonsai_text_long2',
     'indexes' => array(
       'format' => array(
         0 => 'format',

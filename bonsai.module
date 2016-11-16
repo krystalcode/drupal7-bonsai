@@ -227,7 +227,7 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
 
   // Mailgun will be creating a plain text version of the HTML body, so let's
   // only make the HTML field with a text editor available.
-  $form['bonsai_long_text']['#access'] = FALSE;
+  $form['bonsai_text_long']['#access'] = FALSE;
 
   // The following fields are automatically set, either upon creation or when
   // the email will actually be sent.
@@ -248,7 +248,7 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
     $form['bonsai_emails2']['#access'] = FALSE;
     $form['bonsai_emails3']['#access'] = FALSE;
     $form['bonsai_email_subject']['#access'] = FALSE;
-    $form['bonsai_long_text2']['#access'] = FALSE;
+    $form['bonsai_text_long2']['#access'] = FALSE;
     $form['bonsai_files']['#access'] = FALSE;
     $form['bonsai_images']['#access'] = FALSE;
   }
@@ -318,20 +318,20 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
   // 'Body' of the message we're replying to that will be added as a quote in
   // the new email. We will prefer to the HTML body, with a fallback to plain
   // text if the HTML body does not exist.
-  $reply_to_body = $reply_to_node_wrapper->bonsai_long_text2->value();
+  $reply_to_body = $reply_to_node_wrapper->bonsai_text_long2->value();
   if ($reply_to_body) {
     $reply_to_body = $reply_to_body['value'];
   }
   else {
-    $reply_to_body = $reply_to_node_wrapper->bonsai_long_text->value();
+    $reply_to_body = $reply_to_node_wrapper->bonsai_text_long->value();
   }
 
   // Create the reply-to quote and insert it into the new message's HTML body.
   $reply_to_body_quote_header = 'On ' . $reply_to_date . ', ' . htmlspecialchars($reply_to_from) . ' wrote:';
   $reply_to_body_quote = "<p></p><p></p><p>$reply_to_body_quote_header</p><blockquote>$reply_to_body</blockquote>";
-  $language = $form['bonsai_long_text2']['#language'];
-  $form['bonsai_long_text2'][$language][0]['#format'] = 'bonsai_html';
-  $form['bonsai_long_text2'][$language][0]['#default_value'] = $reply_to_body_quote;
+  $language = $form['bonsai_text_long2']['#language'];
+  $form['bonsai_text_long2'][$language][0]['#format'] = 'bonsai_html';
+  $form['bonsai_text_long2'][$language][0]['#default_value'] = $reply_to_body_quote;
 
   // Prepopulate the sender and recipients fields as best we can, based on the
   // sender and the recipients of the message we're replying to.

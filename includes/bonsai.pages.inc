@@ -63,11 +63,11 @@ function _bonsai_messages_send_page($node) {
   // editor. Mailgun will be creating a plain text version based on
   // that. However, let's just check if there is a plain text version and add
   // it, in case we support both plain text and HTML authoring in the future.
-  $text = $node_wrapper->bonsai_long_text->value();
+  $text = $node_wrapper->bonsai_text_long->value();
   if ($text) {
     $message['text'] = $text;
   }
-  $html = $node_wrapper->bonsai_long_text2->value->value();
+  $html = $node_wrapper->bonsai_text_long2->value->value();
   if ($html) {
     $message['html'] = '<html>' . $html . '</html>';
   }
@@ -196,8 +196,8 @@ function _bonsai_messages_clone_page($existing_node) {
   $cloned_node_wrapper->bonsai_emails2          = $existing_node_wrapper->bonsai_emails2->value();
   $cloned_node_wrapper->bonsai_emails3          = $existing_node_wrapper->bonsai_emails3->value();
   $cloned_node_wrapper->bonsai_email_subject    = $existing_node_wrapper->bonsai_email_subject->value();
-  $cloned_node_wrapper->bonsai_long_text        = $existing_node_wrapper->bonsai_long_text->value();
-  $cloned_node_wrapper->bonsai_long_text2       = $existing_node_wrapper->bonsai_long_text2->value();
+  $cloned_node_wrapper->bonsai_text_long        = $existing_node_wrapper->bonsai_text_long->value();
+  $cloned_node_wrapper->bonsai_text_long2       = $existing_node_wrapper->bonsai_text_long2->value();
   $cloned_node_wrapper->bonsai_labels_ref       = $existing_node_wrapper->bonsai_labels_ref->value();
   $cloned_node_wrapper->ogmk_categories_ref     = $existing_node_wrapper->ogmk_categories_ref->value();
   $cloned_node_wrapper->ogmk_labels_ref         = $existing_node_wrapper->ogmk_labels_ref->value();

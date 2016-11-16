@@ -101,7 +101,7 @@ function bonsai_field_group_info() {
     'weight' => '14',
     'children' => array(
       0 => 'bonsai_email_subject',
-      1 => 'bonsai_long_text2',
+      1 => 'bonsai_text_long2',
     ),
     'format_type' => 'bootstrap_grid_col',
     'format_settings' => array(

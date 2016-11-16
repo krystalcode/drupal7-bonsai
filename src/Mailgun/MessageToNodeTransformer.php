@@ -94,10 +94,10 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
       $node_wrapper->bonsai_email_subject = $message->{'subject'};
     }
     if (!empty($message->{'body-plain'})) {
-      $node_wrapper->bonsai_long_text = $message->{'body-plain'};
+      $node_wrapper->bonsai_text_long = $message->{'body-plain'};
     }
     if (!empty($message->{'body-html'})) {
-      $node_wrapper->bonsai_long_text2->value = $message->{'body-html'};
+      $node_wrapper->bonsai_text_long2->value = $message->{'body-html'};
     }
 
     // Add labels - Inbox, Spam, Spoof.
@@ -173,7 +173,7 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
 
     // We're only sending HTML body, but Mailgun creates a plain text version of
     // it before sending it. Add this to the corresponding field as well.
-    $node_wrapper->bonsai_long_text = $message->{'body-plain'};
+    $node_wrapper->bonsai_text_long = $message->{'body-plain'};
 
     // Add the Sent label. The node message is only added to the Sent folder
     // (via the Sent label) only after it has successfully been

@@ -11,8 +11,8 @@ function bonsai_field_default_field_instances() {
   $field_instances = array();
 
   // Exported field_instance:
-  // 'comment-comment_node_bonsai_group_email-bonsai_long_text'.
-  $field_instances['comment-comment_node_bonsai_group_email-bonsai_long_text'] = array(
+  // 'comment-comment_node_bonsai_group_email-bonsai_text_long'.
+  $field_instances['comment-comment_node_bonsai_group_email-bonsai_text_long'] = array(
     'bundle' => 'comment_node_bonsai_group_email',
     'default_value' => NULL,
     'deleted' => 0,
@@ -27,7 +27,7 @@ function bonsai_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'comment',
-    'field_name' => 'bonsai_long_text',
+    'field_name' => 'bonsai_text_long',
     'label' => 'Comment',
     'required' => 1,
     'settings' => array(
@@ -73,8 +73,8 @@ function bonsai_field_default_field_instances() {
   );
 
   // Exported field_instance:
-  // 'comment-comment_node_bonsai_message_email-bonsai_long_text'.
-  $field_instances['comment-comment_node_bonsai_message_email-bonsai_long_text'] = array(
+  // 'comment-comment_node_bonsai_message_email-bonsai_text_long'.
+  $field_instances['comment-comment_node_bonsai_message_email-bonsai_text_long'] = array(
     'bundle' => 'comment_node_bonsai_message_email',
     'default_value' => NULL,
     'deleted' => 0,
@@ -89,7 +89,7 @@ function bonsai_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'comment',
-    'field_name' => 'bonsai_long_text',
+    'field_name' => 'bonsai_text_long',
     'label' => 'Comment',
     'required' => 1,
     'settings' => array(
@@ -175,8 +175,8 @@ function bonsai_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-bonsai_group_email-bonsai_long_text'.
-  $field_instances['node-bonsai_group_email-bonsai_long_text'] = array(
+  // Exported field_instance: 'node-bonsai_group_email-bonsai_text_long'.
+  $field_instances['node-bonsai_group_email-bonsai_text_long'] = array(
     'bundle' => 'bonsai_group_email',
     'default_value' => NULL,
     'deleted' => 0,
@@ -197,7 +197,7 @@ function bonsai_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'bonsai_long_text',
+    'field_name' => 'bonsai_text_long',
     'label' => 'Body in Plain Text',
     'required' => 0,
     'settings' => array(
@@ -773,8 +773,8 @@ function bonsai_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-bonsai_message_email-bonsai_long_text'.
-  $field_instances['node-bonsai_message_email-bonsai_long_text'] = array(
+  // Exported field_instance: 'node-bonsai_message_email-bonsai_text_long'.
+  $field_instances['node-bonsai_message_email-bonsai_text_long'] = array(
     'bundle' => 'bonsai_message_email',
     'default_value' => NULL,
     'deleted' => 0,
@@ -795,7 +795,7 @@ function bonsai_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'bonsai_long_text',
+    'field_name' => 'bonsai_text_long',
     'label' => 'Body in Plain Text',
     'required' => 0,
     'settings' => array(
@@ -840,8 +840,8 @@ function bonsai_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-bonsai_message_email-bonsai_long_text2'.
-  $field_instances['node-bonsai_message_email-bonsai_long_text2'] = array(
+  // Exported field_instance: 'node-bonsai_message_email-bonsai_text_long2'.
+  $field_instances['node-bonsai_message_email-bonsai_text_long2'] = array(
     'bundle' => 'bonsai_message_email',
     'default_value' => NULL,
     'deleted' => 0,
@@ -862,7 +862,7 @@ function bonsai_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'bonsai_long_text2',
+    'field_name' => 'bonsai_text_long2',
     'label' => 'Body in HTML',
     'required' => 0,
     'settings' => array(
