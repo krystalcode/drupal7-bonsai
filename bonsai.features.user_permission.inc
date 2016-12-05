@@ -79,5 +79,52 @@ function bonsai_user_default_permissions() {
     'module' => 'bonsai',
   );
 
+  // Exported permission: 'create bonsai_message_email content'.
+  $permissions['create bonsai_message_email content'] = array(
+    'name' => 'create bonsai_message_email content',
+    'roles' => array(
+      'bonsai administrator' => 'bonsai administrator',
+      'bonsai user' => 'bonsai user',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete any bonsai_message_email content'.
+  $permissions['delete any bonsai_message_email content'] = array(
+    'name' => 'delete any bonsai_message_email content',
+    'roles' => array(
+      'bonsai administrator' => 'bonsai administrator',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete own bonsai_message_email content'.
+  $permissions['delete own bonsai_message_email content'] = array(
+    'name' => 'delete own bonsai_message_email content',
+    'roles' => array(
+      'bonsai administrator' => 'bonsai administrator',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit any bonsai_message_email content'.
+  $permissions['edit any bonsai_message_email content'] = array(
+    'name' => 'edit any bonsai_message_email content',
+    'roles' => array(
+      'bonsai administrator' => 'bonsai administrator',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit own bonsai_message_email content'.
+  $permissions['edit own bonsai_message_email content'] = array(
+    'name' => 'edit own bonsai_message_email content',
+    'roles' => array(
+      'bonsai administrator' => 'bonsai administrator',
+      'bonsai user' => 'bonsai user',
+    ),
+    'module' => 'node',
+  );
+
   return $permissions;
 }
