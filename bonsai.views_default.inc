@@ -96,10 +96,11 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['id'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['table'] = 'field_data_bonsai_labels_ref';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['field'] = 'bonsai_labels_ref_tid';
-  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['value'] = array(
-    0 => '16',
-    1 => '20',
-  );
+
+  // Restrict to messages that have the Inbox label.
+  $inbox_labels = _bonsai_taxonomy_term_multiple_by_name('Inbox', array('tids_only' => TRUE));
+  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['value'] = $inbox_labels;
+
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator_id'] = 'bonsai_labels_ref_tid_op';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Message Labels (bonsai_labels_ref)';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator'] = 'bonsai_labels_ref_tid_op';
@@ -147,9 +148,11 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['id'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['table'] = 'field_data_bonsai_labels_ref';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['field'] = 'bonsai_labels_ref_tid';
-  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['value'] = array(
-    0 => '21',
-  );
+
+  // Restrict to messages that have the Archive label.
+  $archive_labels = _bonsai_taxonomy_term_multiple_by_name('Archive', array('tids_only' => TRUE));
+  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['value'] = $archive_labels;
+
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator_id'] = 'bonsai_labels_ref_tid_op';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Message Labels (bonsai_labels_ref)';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator'] = 'bonsai_labels_ref_tid_op';
@@ -317,10 +320,11 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['id'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['table'] = 'field_data_bonsai_labels_ref';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['field'] = 'bonsai_labels_ref_tid';
-  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['value'] = array(
-    0 => '17',
-    1 => '22',
-  );
+
+  // Restrict to messages that have the Sent label.
+  $sent_labels = _bonsai_taxonomy_term_multiple_by_name('Sent', array('tids_only' => TRUE));
+  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['value'] = $sent_labels;
+
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator_id'] = 'bonsai_labels_ref_tid_op';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Message Labels (bonsai_labels_ref)';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator'] = 'bonsai_labels_ref_tid_op';
@@ -370,9 +374,11 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['id'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['table'] = 'field_data_bonsai_labels_ref';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['field'] = 'bonsai_labels_ref_tid';
-  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['value'] = array(
-    0 => '18',
-  );
+
+  // Restrict to messages that have the Spam label.
+  $spam_labels = _bonsai_taxonomy_term_multiple_by_name('Spam', array('tids_only' => TRUE));
+  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['value'] = $spam_labels;
+
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator_id'] = 'bonsai_labels_ref_tid_op';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Message Labels (bonsai_labels_ref)';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator'] = 'bonsai_labels_ref_tid_op';
