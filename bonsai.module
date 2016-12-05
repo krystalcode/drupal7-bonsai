@@ -781,7 +781,7 @@ function _bonsai_queue_worker__bonsai_messages_incoming($node_wrapper) {
   $parent_email_id = _bonsai_email_email_has_header($node_wrapper->bonsai_json->value(), 'In-Reply-To');
 
   if ($parent_email_id) {
-    $parent_node_id = _bonsai_email_email_has_parent($parent_email_id);
+    $parent_node_id = _bonsai_message_node_id_by_email_id($parent_email_id, TRUE);
     if ($parent_node_id) {
       $node_wrapper->bonsai_message_email_ref = $parent_node_id;
     }
@@ -893,7 +893,7 @@ function _bonsai_queue_worker__bonsai_conversations($node_id) {
   }
 
   // Get the parent node, if it exists.
-  $parent_node_id = _bonsai_email_email_has_parent($parent_email_id);
+  $parent_node_id = _bonsai_message_node_id_by_email_id($parent_email_id, TRUE);
 
   // If the parent node exists, store it as a reference in the appropriate
   // field.
@@ -1023,26 +1023,6 @@ function _bonsai_message_add_labels($node_wrapper, $labels) {
   $new_terms = $current_terms + $new_terms;
 
   $node_wrapper->bonsai_labels_ref->set($new_terms);
-}
-
-function _bonsai_email_email_has_parent($email_id) {
-  $email_id = _bonsai_email_trim_email_id($email_id);
-
-  $query = new EntityFieldQuery();
-  $query
-    ->entityCondition('entity_type', 'node')
-    ->propertyCondition('type', 'bonsai_message_email')
-    ->fieldCondition('bonsai_email_id', 'value', $email_id)
-    ->range(0, 1)
-  ;
-  $result = $query->execute();
-
-  if (empty($result['node'])) {
-    return FALSE;
-  }
-
-  $node = current($result['node']);
-  return $node->nid;
 }
 
 function _bonsai_full_format_to_email($email) {
