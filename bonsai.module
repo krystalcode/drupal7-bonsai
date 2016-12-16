@@ -579,6 +579,32 @@ function _bonsai_cron__bonsai_messages_delivered() {
       continue;
     }
 
+    // If the email is tagged as transactional, ignore it.
+    /**
+     * @Issue(
+     *   "Test case where a transactional email has other tags as well"
+     *   type="bug"
+     *   priority="normal"
+     * )
+     * @Issue(
+     *   "Consider tagging all Bonsai generated email messages and excluding all
+     *   other emails"
+     *   type="improvement"
+     *   priority="normal"
+     * )
+     * @Issue(
+     *   "Allow configuring the exclusion method and corresponding tags via
+     *   module configuration"
+     *   type="improvement"
+     *   priority="normal"
+     *   labels="configuration"
+     * )
+     */
+    $tag = _bonsai_email_email_has_header($message, 'X-Mailgun-Tag');
+    if ($tag && $tag === 'transactional') {
+      continue;
+    }
+
     // Do not reprocess delivered message nodes that have already been updated.
     /**
      * @Issue(
