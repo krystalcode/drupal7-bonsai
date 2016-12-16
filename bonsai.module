@@ -600,8 +600,7 @@ function _bonsai_cron__bonsai_messages_delivered() {
      *   labels="configuration"
      * )
      */
-    $tag = _bonsai_email_email_has_header($message, 'X-Mailgun-Tag');
-    if ($tag && $tag === 'transactional') {
+    if (!empty($message->{'X-Mailgun-Tag'}) && $message->{'X-Mailgun-Tag'} === 'transactional') {
       continue;
     }
 
