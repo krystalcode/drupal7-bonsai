@@ -1080,7 +1080,13 @@ function _bonsai_uids_by_emails(array $emails) {
 }
 
 function _bonsai_email_email_has_header($email_json, $header) {
-  $message = json_decode($email_json);
+  // Decode the email json if it is passed as string.
+  if (is_string($email_json)) {
+    $message = json_decode($email_json);
+  }
+  else {
+    $message = $email_json;
+  }
 
   if (empty($message->{'message-headers'})) {
     return FALSE;
