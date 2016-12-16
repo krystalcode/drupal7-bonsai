@@ -991,7 +991,7 @@ function _bonsai_message_node_id_by_email_id($email_id, $access_bypass = FALSE) 
   // always denied access to view messages, published or unpublished. In such
   // cases we want to allow bypassing access control.
   if ($access_bypass) {
-    $query->addTag(DANGEROUS_ACCESS_CHECK_OPT_OUT);
+    $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
   }
 
   $result = $query->execute();
