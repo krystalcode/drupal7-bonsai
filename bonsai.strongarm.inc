@@ -300,6 +300,8 @@ function bonsai_strongarm() {
   $strongarm->name = 'node_options_bonsai_group_email';
   $strongarm->value = array(
     0 => 'status',
+    1 => 'revision',
+    2 => 'revision_moderation',
   );
   $export['node_options_bonsai_group_email'] = $strongarm;
 
@@ -309,6 +311,7 @@ function bonsai_strongarm() {
   $strongarm->name = 'node_options_bonsai_message_email';
   $strongarm->value = array(
     0 => 'revision',
+    1 => 'revision_moderation',
   );
   $export['node_options_bonsai_message_email'] = $strongarm;
 
