@@ -14,6 +14,7 @@ dependencies[] = file
 dependencies[] = image
 dependencies[] = jsonb
 dependencies[] = list
+dependencies[] = node
 dependencies[] = og
 dependencies[] = og_moderation
 dependencies[] = og_ui
