@@ -133,6 +133,22 @@ function _bonsai_messages_send_page($node) {
     // timestamp - it should only be a few hundred milliseconds different than
     // the timestamp that Mailgun received the request. We can always correct
     // the values later from the JSON source, if desired.
+    /**
+     * @Issue(
+     *   "Extract the timestamp for delivered emails from the Received header
+     *   as in MessageToNodeTransformer"
+     *   type="bug"
+     *   priority="normal"
+     *   labels="data"
+     * )
+     * @Issue(
+     *   "Correct timestamp for existing delivered messages with the one
+     *   extracted from the Received header"
+     *   type="bug"
+     *   priority="normal"
+     *   labels="data"
+     * )
+     */
     $node_wrapper->bonsai_timestamp = time();
 
     $node_wrapper->save();

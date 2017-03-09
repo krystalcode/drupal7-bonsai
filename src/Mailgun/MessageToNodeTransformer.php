@@ -28,7 +28,39 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
 
     // Convert the time to a unix timestamp so that we can store it in a date
     // field of unix timestamp type.
-    $time = strtotime($message->{'Date'});
+    if (!empty($message->{'Date'})) {
+      $time = strtotime($message->{'Date'});
+    }
+    // When we send an email to one of our own accounts, the Date headers will
+    // be missing. There will be the Received headers though. It is in the
+    // format: by luna.mailgun.net with HTTP; Thu, 09 Mar 2017 03:08:06 +0000
+    elseif (!empty($message->{'Received'})) {
+      $received_time_parts = explode(';', $message->{'Received'});
+      // If we can't properly detect the time we'll use the current
+      // timestamp. It won't be very accurate as it could be a few minutes, up
+      // to 30 minutes, later than the correct date depending on how frequently
+      // the cron job run. We can always correct the time later though when we
+      // fix any problems with the detection.
+      /**
+       * @Issue(
+       *   "Validate the format of the Received header"
+       *   type="bug"
+       *   priority="low"
+       *   labels="mailgun api"
+       * )
+       * @Issue(
+       *   "Refactor the function that extracts the timestamp from the Received
+       *   header so that it can be reused"
+       *   type="task"
+       *   priority="low"
+       *   labels="refactoring"
+       * )
+       */
+      $time = time();
+      if (!empty($received_time_parts[1])) {
+        $time = strtotime(trim($received_time_parts[1]));
+      }
+    }
 
     // Get the recipients' emails.
     $recipients = explode(',', $message->{'To'});
