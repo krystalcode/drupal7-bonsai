@@ -69,7 +69,7 @@ function _bonsai_messages_send_page($node) {
   }
   $html = $node_wrapper->bonsai_text_long2->value->value();
   if ($html) {
-    $message['html'] = '<html>' . $html . '</html>';
+    $message['html'] = '<html><head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"></head><body text="#000000" bgcolor="#FFFFFF">' . $html . '</body></html>';
   }
 
   // Attachments.
