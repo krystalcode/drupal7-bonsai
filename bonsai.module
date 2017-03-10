@@ -970,8 +970,8 @@ function _bonsai_queue_worker__bonsai_conversations($node_id) {
   // been created yet.
   /**
    * @Issue(
-   *   "Stop trying to repeatedly detect the parent email after a certain
-   *   period of time"
+   *   "Parent emails may not be detected if the corresponding node has not been
+   *   created yet due to queue waiting time"
    *   type="bug"
    *   priority="low"
    *   labels="cron, deadlock"
