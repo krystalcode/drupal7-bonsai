@@ -326,9 +326,46 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
     $reply_to_body = $reply_to_node_wrapper->bonsai_text_long->value();
   }
 
+  // Function that will be used to get the inner HTML from email bodies. If it
+  // needs to be reused elsewhere it should be put in a function library, but
+  // for now it's good here.
+  $innerHTML = function(DOMNode $node) {
+    $innerHTML = '';
+    $children  = $node->childNodes;
+
+    foreach($children as $child) {
+      $innerHTML .= $node->ownerDocument->saveHTML($child);
+    }
+
+    return $innerHTML;
+  };
+
+  // We'll need to extract the head and body of the HTML so that we can insert
+  // it into the blockquote of the reply.
+  $dom = new DOMDocument();
+  $dom->preserveWhiteSpace = false;
+  $dom->formatOutput       = true;
+  $dom->loadHTML($reply_to_body);
+  $dom_head = $dom->getElementsByTagName('head');
+  if ($dom_head && isset($dom_head[0])) {
+    $dom_head = $innerHTML($dom_head->item(0));
+  }
+  else {
+    $dom_head = '';
+  }
+  $dom_body = $dom->getElementsByTagName('body');
+  if ($dom_body && isset($dom_body[0])) {
+    $dom_body = $innerHTML($dom_body->item(0));
+  }
+  else {
+    $dom_body = '';
+  }
+  $reply_to_body = $dom_head . $dom_body;
+
   // Create the reply-to quote and insert it into the new message's HTML body.
+  $reply_to_message_id = $reply_to_node_wrapper->bonsai_email_id->value();
   $reply_to_body_quote_header = 'On ' . $reply_to_date . ', ' . htmlspecialchars($reply_to_from) . ' wrote:';
-  $reply_to_body_quote = "<p></p><p></p><p>$reply_to_body_quote_header</p><blockquote>$reply_to_body</blockquote>";
+  $reply_to_body_quote = '<p></p><p></p><p>' . $reply_to_body_quote_header . '</p><blockquote cite="' . $reply_to_message_id . '" type="cite">' . $reply_to_body . '</blockquote>';
   $language = $form['bonsai_text_long2']['#language'];
   $form['bonsai_text_long2'][$language][0]['#format'] = 'bonsai_html';
   $form['bonsai_text_long2'][$language][0]['#default_value'] = $reply_to_body_quote;
