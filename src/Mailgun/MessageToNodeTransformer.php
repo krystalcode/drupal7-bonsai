@@ -129,6 +129,15 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
       $node_wrapper->bonsai_text_long = $message->{'body-plain'};
     }
     if (!empty($message->{'body-html'})) {
+      /**
+       * @Issue(
+       *   "Check if we should be setting the text format to bonsai_html for
+       *   incoming email messages"
+       *   type="bug"
+       *   priority="low"
+       *   labels="data"
+       * )
+       */
       $node_wrapper->bonsai_text_long2->value = $message->{'body-html'};
     }
 
