@@ -927,6 +927,7 @@ function bonsai_field_default_field_instances() {
     'settings' => array(
       'better_formats' => array(
         'allowed_formats' => array(
+          'bonsai_html' => 'bonsai_html',
           'ogmk_basic_html' => 'ogmk_basic_html',
           'ogmk_html' => 0,
           'ogmk_plain_html' => 'ogmk_plain_html',
@@ -936,6 +937,9 @@ function bonsai_field_default_field_instances() {
         'default_order_toggle' => 0,
         'default_order_wrapper' => array(
           'formats' => array(
+            'bonsai_html' => array(
+              'weight' => 0,
+            ),
             'ogmk_basic_html' => array(
               'weight' => 0,
             ),

@@ -3,6 +3,8 @@ description = A module that provides functionality and configuration for an emai
 core = 7.x
 package = Bonsai
 version = 7.x-0.1-dev
+dependencies[] = app_users
+dependencies[] = ckeditor
 dependencies[] = ctools
 dependencies[] = date
 dependencies[] = email
@@ -20,7 +22,7 @@ dependencies[] = og_moderation
 dependencies[] = og_ui
 dependencies[] = ogmk_blog
 ; @Issue(
-;   "The ogmk_shops should not be detected as a dependency"
+;   "The ogmk_shops and app_users should not be detected as a dependency"
 ;   type="bug"
 ;   priority="low"
 ;   labels="features"
@@ -34,6 +36,7 @@ dependencies[] = text
 dependencies[] = views
 dependencies[] = views_bootstrap
 dependencies[] = xautoload
+features[ckeditor_profile][] = bonsai_html
 features[ctools][] = field_group:field_group:1
 features[ctools][] = strongarm:strongarm:1
 features[ctools][] = views:views_default:3.0
@@ -94,6 +97,7 @@ features[field_instance][] = node-bonsai_message_email-ogmk_blog_labels_ref
 features[field_instance][] = node-bonsai_message_email-ogmk_categories_ref
 features[field_instance][] = node-bonsai_message_email-ogmk_labels_ref
 features[field_instance][] = user-user-bonsai_boolean
+features[filter][] = bonsai_html
 features[node][] = bonsai_group_email
 features[node][] = bonsai_message_email
 features[og_features_permission][] = node:bonsai_group_email:access authoring options of bonsai_message_email content
