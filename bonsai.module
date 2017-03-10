@@ -654,9 +654,10 @@ function _bonsai_cron__bonsai_messages_delivered() {
     if (!$node) {
       watchdog(
         'bonsai',
-        'No node was found for the delivered message with ID "@message_id".',
+        'No node was found for the delivered message with ID "@message_id". Full message is "@message"',
         array(
           '@message_id' => _bonsai_email_trim_email_id($message->{'Message-Id'}),
+          '@message' => json_encode($message),
         ),
         WATCHDOG_ERROR
       );
