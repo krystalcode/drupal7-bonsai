@@ -977,8 +977,8 @@ function _bonsai_queue_worker__bonsai_conversations($node_id) {
    *   labels="cron, deadlock"
    */
   else {
-    $queue = DrupalQueue::get('bonsai_conversations');
-    $queue->createItem($node_wrapper->getIdentifier());
+    //$queue = DrupalQueue::get('bonsai_conversations');
+    //$queue->createItem($node_wrapper->getIdentifier());
   }
 }
 
