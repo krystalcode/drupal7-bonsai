@@ -27,20 +27,23 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     $node->uid = 1;
 
     // Convert the time to a unix timestamp so that we can store it in a date
-    // field of unix timestamp type.
+    // field of unix timestamp type. If we can't properly detect the time we'll
+    // use the current timestamp . It won't be very accurate as it could be a
+    // few minutes, up to 30 minutes, later than the correct date depending on
+    // how frequently the cron job run. We can always correct the time later
+    // though when we fix any problems with the detection.
+    $time = time();
+
+    // First try the Date header.
     if (!empty($message->{'Date'})) {
       $time = strtotime($message->{'Date'});
     }
     // When we send an email to one of our own accounts, the Date headers will
-    // be missing. There will be the Received headers though. It is in the
-    // format: by luna.mailgun.net with HTTP; Thu, 09 Mar 2017 03:08:06 +0000
+    // be missing (update: it seems this happens in other cases as well). There
+    // will be the Received headers though. It is in the format: by
+    // luna.mailgun.net with HTTP; Thu, 09 Mar 2017 03:08:06 +0000
     elseif (!empty($message->{'Received'})) {
       $received_time_parts = explode(';', $message->{'Received'});
-      // If we can't properly detect the time we'll use the current
-      // timestamp. It won't be very accurate as it could be a few minutes, up
-      // to 30 minutes, later than the correct date depending on how frequently
-      // the cron job run. We can always correct the time later though when we
-      // fix any problems with the detection.
       /**
        * @Issue(
        *   "Validate the format of the Received header"
@@ -56,9 +59,20 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
        *   labels="refactoring"
        * )
        */
-      $time = time();
       if (!empty($received_time_parts[1])) {
-        $time = strtotime(trim($received_time_parts[1]));
+        $parsed_time = strtotime(trim($received_time_parts[1]));
+        // If the datetime string cannot be parsed 'strtotime will return
+        // FALSE. Only use it when parsed correctly.
+        // @Issue(
+        //   "Some datetime strings include the timezone for a second time in
+        //   parenthesis and parsing fails"
+        //   type="bug"
+        //   priority="normal"
+        // )
+        // Example: "from prd-backend5 (backend5 [23.253.213.234])\tby smtp.efact.pe (Postfix) with ESMTP id A7203474A3\tfor; Wed, 20 Dec 2017 11:35:55 -0500 (-05)".
+        if ($parsed_time) {
+          $time = $parsed_time;
+        }
       }
     }
 
