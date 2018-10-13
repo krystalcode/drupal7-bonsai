@@ -243,3 +243,90 @@ function _bonsai_messages_clone_page($existing_node) {
   //
   drupal_goto('node/' . $cloned_node_wrapper->getIdentifier());
 }
+
+/**
+ * @Issue(
+ *   "Properly handle error cases instead of always returning 404"
+ *   type="improvement"
+ *   priority="low"
+ *   labels="correctedness"
+ * )
+ */
+function _bonsai_attachments_add_page($node) {
+  // Attachments are meant to be added via a POST request.
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    drupal_not_found();
+    return;
+  }
+
+  // Currently only the node type provided by this module is supported.
+  if (empty($node) || $node->type !== 'bonsai_message_email') {
+    drupal_not_found();
+    return;
+  }
+
+  $node_wrapper = entity_metadata_wrapper('node', $node);
+
+  /**
+   * @Issue(
+   *   "Find a way to detect whether an attachment has already been added to the
+   *   node"
+   *   type="bug"
+   *   priority="low"
+   *   labels="data"
+   * )
+   */
+
+  // Make sure that the attachment url is given.
+  /**
+   * @Issue(
+   *   "Support a request to attach all message's attachment to the
+   *   corresponding node"
+   *   type="improvement"
+   *   priority="normal"
+   *   labels="ux"
+   * )
+   */
+  if (empty($_POST['url'])) {
+    drupal_not_found();
+    return;
+  }
+
+  $url = $_POST['url'];
+  $attachments = [];
+
+  // Check if the requested attachment url actually belongs to the message
+  // corresponding to the node where the attachment will be added.
+  $message = json_decode($node_wrapper->bonsai_json->value());
+  if (!empty($message->attachments)) {
+    // Get all the details of the attachment.
+    foreach ($message->attachments as $message_attachment) {
+      if ($url === 'all' || $url === $message_attachment->url) {
+        $attachments[] = $message_attachment;
+      }
+    }
+  }
+
+  // If the attachment was not found, it does not belong to this message.
+  if (!$attachments) {
+    drupal_not_found();
+    return;
+  }
+
+  // All looks good, add the attachment(s) to the node.
+  foreach ($attachments as $attachment) {
+    _bonsai_node_add_attachment($attachment, $node_wrapper);
+  }
+
+  /**
+   * @Issue(
+   *   "Allow a redirect url via a query parameter to accommodate adding
+   *   attachments from pages other than the node view page"
+   *   type="improvement"
+   *   priority="low"
+   * )
+   */
+
+  // Go back to the node page.
+  drupal_goto('node/' . $node_wrapper->getIdentifier());
+}
