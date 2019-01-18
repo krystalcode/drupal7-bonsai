@@ -36,7 +36,11 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
 
     // First try the Date header.
     if (!empty($message->{'Date'})) {
-      $time = strtotime($message->{'Date'});
+      $parsed_time = strtotime($message->{'Date'});
+      // See Issue below.
+      if ($parsed_time) {
+        $time = $parsed_time;
+      }
     }
     // When we send an email to one of our own accounts, the Date headers will
     // be missing (update: it seems this happens in other cases as well). There
