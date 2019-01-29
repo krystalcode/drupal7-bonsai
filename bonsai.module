@@ -1400,7 +1400,7 @@ function _bonsai_taxonomy_term_all_by_vocabulary_and_case(
    * )
    */
   $query .= ' ORDER BY ttd.name ASC';
-  $results = db_query($query, array(':vid' => 7));
+  $results = db_query($query, array(':vid' => $vid));
   $tids = array();
   foreach ($results as $result) {
     $tids[] = $result->tid;
