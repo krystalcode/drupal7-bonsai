@@ -212,10 +212,6 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
-    4 => 0,
-    3 => 0,
-    5 => 0,
-    6 => 0,
   );
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['vocabulary'] = 'bonsai_labels';
   /* Filter criterion: Content: From (bonsai_email) */
@@ -440,10 +436,6 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
-    4 => 0,
-    3 => 0,
-    5 => 0,
-    6 => 0,
   );
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['vocabulary'] = 'bonsai_labels';
   /* Filter criterion: Content: From (bonsai_email) */
@@ -626,10 +618,6 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
-    4 => 0,
-    3 => 0,
-    5 => 0,
-    6 => 0,
   );
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['type'] = 'select';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['vocabulary'] = 'bonsai_labels';
@@ -670,10 +658,6 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['ogmk_labels_ref_tid']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
-    4 => 0,
-    3 => 0,
-    5 => 0,
-    6 => 0,
   );
   $handler->display->display_options['filters']['ogmk_labels_ref_tid']['type'] = 'select';
   $handler->display->display_options['filters']['ogmk_labels_ref_tid']['vocabulary'] = 'ogmk_labels';
@@ -692,10 +676,6 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
-    4 => 0,
-    3 => 0,
-    5 => 0,
-    6 => 0,
   );
   $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['type'] = 'select';
   $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['vocabulary'] = 'ogmk_blog_labels';
