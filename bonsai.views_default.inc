@@ -636,10 +636,6 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['ogmk_categories_ref_tid']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
-    4 => 0,
-    3 => 0,
-    5 => 0,
-    6 => 0,
   );
   $handler->display->display_options['filters']['ogmk_categories_ref_tid']['type'] = 'select';
   $handler->display->display_options['filters']['ogmk_categories_ref_tid']['vocabulary'] = 'ogmk_categories';
