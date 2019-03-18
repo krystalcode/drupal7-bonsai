@@ -139,7 +139,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator_id'] = 'bonsai_email_email_op';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['label'] = 'From';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator'] = 'bonsai_email_email_op';
-  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'bonsai_email_email';
+  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'from';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -153,7 +153,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator_id'] = 'bonsai_emails_email_op';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['label'] = 'To';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator'] = 'bonsai_emails_email_op';
-  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'bonsai_emails_email';
+  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'to';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -227,7 +227,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator_id'] = 'bonsai_email_email_op';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['label'] = 'From';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator'] = 'bonsai_email_email_op';
-  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'bonsai_email_email';
+  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'from';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -241,7 +241,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator_id'] = 'bonsai_emails_email_op';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['label'] = 'To';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator'] = 'bonsai_emails_email_op';
-  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'bonsai_emails_email';
+  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'to';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -333,7 +333,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator_id'] = 'bonsai_email_email_op';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['label'] = 'From';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator'] = 'bonsai_email_email_op';
-  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'bonsai_email_email';
+  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'from';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -347,7 +347,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator_id'] = 'bonsai_emails_email_op';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['label'] = 'To';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator'] = 'bonsai_emails_email_op';
-  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'bonsai_emails_email';
+  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'to';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -455,7 +455,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator_id'] = 'bonsai_email_email_op';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['label'] = 'From';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator'] = 'bonsai_email_email_op';
-  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'bonsai_email_email';
+  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'from';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -469,7 +469,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator_id'] = 'bonsai_emails_email_op';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['label'] = 'To';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator'] = 'bonsai_emails_email_op';
-  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'bonsai_emails_email';
+  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'to';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -529,7 +529,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator_id'] = 'bonsai_email_email_op';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['label'] = 'From';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator'] = 'bonsai_email_email_op';
-  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'bonsai_email_email';
+  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'from';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -543,7 +543,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator_id'] = 'bonsai_emails_email_op';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['label'] = 'To';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator'] = 'bonsai_emails_email_op';
-  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'bonsai_emails_email';
+  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'to';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -591,7 +591,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator_id'] = 'bonsai_email_email_op';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['label'] = 'From';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator'] = 'bonsai_email_email_op';
-  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'bonsai_email_email';
+  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'from';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -606,7 +606,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator_id'] = 'bonsai_emails_email_op';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['label'] = 'To';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator'] = 'bonsai_emails_email_op';
-  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'bonsai_emails_email';
+  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'to';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -745,7 +745,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator_id'] = 'bonsai_email_email_op';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['label'] = 'From';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator'] = 'bonsai_email_email_op';
-  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'bonsai_email_email';
+  $handler->display->display_options['filters']['bonsai_email_email']['expose']['identifier'] = 'from';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -759,7 +759,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator_id'] = 'bonsai_emails_email_op';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['label'] = 'To';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator'] = 'bonsai_emails_email_op';
-  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'bonsai_emails_email';
+  $handler->display->display_options['filters']['bonsai_emails_email']['expose']['identifier'] = 'to';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
