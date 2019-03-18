@@ -625,7 +625,7 @@ function bonsai_field_default_field_instances() {
       'description_field' => 0,
       'entity_translation_sync' => FALSE,
       'file_directory' => 'node/bonsai_message_email/bonsai_files',
-      'file_extensions' => 'txt',
+      'file_extensions' => 'txt pdf xlsx xlsm doc docx tiff xml zip',
       'max_filesize' => '',
       'user_register_form' => FALSE,
     ),
