@@ -645,7 +645,7 @@ function bonsai_views_default_views() {
   );
   $handler->display->display_options['filters']['ogmk_categories_ref_tid']['type'] = 'select';
   $handler->display->display_options['filters']['ogmk_categories_ref_tid']['vocabulary'] = 'ogmk_categories';
-  /* Filter criterion: Content: Product Labels (ogmk_labels_ref) */
+  /* Filter criterion: Content: Labels (ogmk_labels_ref) */
   $handler->display->display_options['filters']['ogmk_labels_ref_tid']['id'] = 'ogmk_labels_ref_tid';
   $handler->display->display_options['filters']['ogmk_labels_ref_tid']['table'] = 'field_data_ogmk_labels_ref';
   $handler->display->display_options['filters']['ogmk_labels_ref_tid']['field'] = 'ogmk_labels_ref_tid';
@@ -810,10 +810,14 @@ function bonsai_views_default_views() {
     t('next ›'),
     t('last »'),
     t('<div class="alert alert-warning"><span class="fa fa-exclamation"></span> There are no messages in the Inbox folder at the moment. Messages may have been moved to the Archive.</div>'),
+    t('- Choose an operation -'),
     t('Subject'),
     t('From'),
     t('To'),
     t('Date'),
+    t('Edit button link'),
+    t('Actions'),
+    t('[edit_node_button]'),
     t('Message Labels (bonsai_labels_ref)'),
     t('Inbox'),
     t('Archive'),
@@ -821,7 +825,6 @@ function bonsai_views_default_views() {
     t('Drafts'),
     t('<div class="alert alert-warning"><span class="fa fa-exclamation"></span> There are no messages in the Drafts folder at the moment.</div>'),
     t('author'),
-    t('Author'),
     t('Sent'),
     t('<div class="alert alert-warning"><span class="fa fa-exclamation"></span> There are no messages in the Sent folder at the moment.</div>'),
     t('Real name'),
