@@ -325,7 +325,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_email_id_value']['id'] = 'bonsai_email_id_value';
   $handler->display->display_options['filters']['bonsai_email_id_value']['table'] = 'field_data_bonsai_email_id';
   $handler->display->display_options['filters']['bonsai_email_id_value']['field'] = 'bonsai_email_id_value';
-  $handler->display->display_options['filters']['bonsai_email_id_value']['operator'] = 'not empty';
+  $handler->display->display_options['filters']['bonsai_email_id_value']['operator'] = 'empty';
   /* Filter criterion: Content: From (bonsai_email) */
   $handler->display->display_options['filters']['bonsai_email_email']['id'] = 'bonsai_email_email';
   $handler->display->display_options['filters']['bonsai_email_email']['table'] = 'field_data_bonsai_email';
