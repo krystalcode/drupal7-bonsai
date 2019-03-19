@@ -92,6 +92,18 @@ function bonsai_views_default_views() {
     'multiple_to' => '',
     'show_remaining_days' => 0,
   );
+  /* Field: Content: Edit button link */
+  $handler->display->display_options['fields']['edit_node_button']['id'] = 'edit_node_button';
+  $handler->display->display_options['fields']['edit_node_button']['table'] = 'node';
+  $handler->display->display_options['fields']['edit_node_button']['field'] = 'edit_node_button';
+  $handler->display->display_options['fields']['edit_node_button']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['edit_node_button']['size'] = 'xs';
+  /* Field: Global: Custom text */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = 'Actions';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '[edit_node_button]';
   /* Sort criterion: Content: Date (bonsai_timestamp) */
   $handler->display->display_options['sorts']['bonsai_timestamp_value']['id'] = 'bonsai_timestamp_value';
   $handler->display->display_options['sorts']['bonsai_timestamp_value']['table'] = 'field_data_bonsai_timestamp';
