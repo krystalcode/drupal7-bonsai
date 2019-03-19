@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * bonsai.features.ckeditor_profile.inc
