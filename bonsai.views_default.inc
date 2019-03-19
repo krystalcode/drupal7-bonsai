@@ -697,6 +697,47 @@ function bonsai_views_default_views() {
   $handler->display->display_options['empty']['area_text_custom']['field'] = 'area_text_custom';
   $handler->display->display_options['empty']['area_text_custom']['empty'] = TRUE;
   $handler->display->display_options['empty']['area_text_custom']['content'] = '<div class="alert alert-warning"><span class="fa fa-exclamation"></span> There are no messages in the Outbox folder at the moment. The Outbox folder contains messages that have been queued for delivery.</div>';
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = 'Subject';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  /* Field: Content: From */
+  $handler->display->display_options['fields']['bonsai_email']['id'] = 'bonsai_email';
+  $handler->display->display_options['fields']['bonsai_email']['table'] = 'field_data_bonsai_email';
+  $handler->display->display_options['fields']['bonsai_email']['field'] = 'bonsai_email';
+  /* Field: Content: To */
+  $handler->display->display_options['fields']['bonsai_emails']['id'] = 'bonsai_emails';
+  $handler->display->display_options['fields']['bonsai_emails']['table'] = 'field_data_bonsai_emails';
+  $handler->display->display_options['fields']['bonsai_emails']['field'] = 'bonsai_emails';
+  $handler->display->display_options['fields']['bonsai_emails']['delta_offset'] = '0';
+  /* Field: Content: Date */
+  $handler->display->display_options['fields']['bonsai_timestamp']['id'] = 'bonsai_timestamp';
+  $handler->display->display_options['fields']['bonsai_timestamp']['table'] = 'field_data_bonsai_timestamp';
+  $handler->display->display_options['fields']['bonsai_timestamp']['field'] = 'bonsai_timestamp';
+  $handler->display->display_options['fields']['bonsai_timestamp']['settings'] = array(
+    'format_type' => 'long',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+    'show_remaining_days' => 0,
+  );
+  /* Field: Content: Edit button link */
+  $handler->display->display_options['fields']['edit_node_button']['id'] = 'edit_node_button';
+  $handler->display->display_options['fields']['edit_node_button']['table'] = 'node';
+  $handler->display->display_options['fields']['edit_node_button']['field'] = 'edit_node_button';
+  $handler->display->display_options['fields']['edit_node_button']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['edit_node_button']['size'] = 'xs';
+  /* Field: Global: Custom text */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = 'Actions';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '[edit_node_button]';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* Filter criterion: Content: Published */
