@@ -276,12 +276,6 @@ function bonsai_views_default_views() {
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
   $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Realname: Real name */
-  $handler->display->display_options['fields']['realname']['id'] = 'realname';
-  $handler->display->display_options['fields']['realname']['table'] = 'realname';
-  $handler->display->display_options['fields']['realname']['field'] = 'realname';
-  $handler->display->display_options['fields']['realname']['relationship'] = 'uid';
-  $handler->display->display_options['fields']['realname']['label'] = 'Author';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
