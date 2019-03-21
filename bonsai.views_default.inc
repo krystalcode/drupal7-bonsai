@@ -98,7 +98,9 @@ function bonsai_views_default_views() {
   $handler->display->display_options['fields']['edit_node_button']['id'] = 'edit_node_button';
   $handler->display->display_options['fields']['edit_node_button']['table'] = 'node';
   $handler->display->display_options['fields']['edit_node_button']['field'] = 'edit_node_button';
+  $handler->display->display_options['fields']['edit_node_button']['label'] = '';
   $handler->display->display_options['fields']['edit_node_button']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['edit_node_button']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['edit_node_button']['size'] = 'xs';
   /* Field: Global: Custom text */
   $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
@@ -307,6 +309,20 @@ function bonsai_views_default_views() {
     'multiple_to' => '',
     'show_remaining_days' => 0,
   );
+  /* Field: Content: Edit button link */
+  $handler->display->display_options['fields']['edit_node_button']['id'] = 'edit_node_button';
+  $handler->display->display_options['fields']['edit_node_button']['table'] = 'node';
+  $handler->display->display_options['fields']['edit_node_button']['field'] = 'edit_node_button';
+  $handler->display->display_options['fields']['edit_node_button']['label'] = '';
+  $handler->display->display_options['fields']['edit_node_button']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['edit_node_button']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['edit_node_button']['size'] = 'xs';
+  /* Field: Global: Custom text */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = 'Actions';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '[edit_node_button]';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* Filter criterion: Content: Published */
@@ -407,11 +423,20 @@ function bonsai_views_default_views() {
     'multiple_to' => '',
     'show_remaining_days' => 0,
   );
-  /* Field: Realname: Real name */
-  $handler->display->display_options['fields']['realname']['id'] = 'realname';
-  $handler->display->display_options['fields']['realname']['table'] = 'realname';
-  $handler->display->display_options['fields']['realname']['field'] = 'realname';
-  $handler->display->display_options['fields']['realname']['relationship'] = 'uid';
+  /* Field: Content: Edit button link */
+  $handler->display->display_options['fields']['edit_node_button']['id'] = 'edit_node_button';
+  $handler->display->display_options['fields']['edit_node_button']['table'] = 'node';
+  $handler->display->display_options['fields']['edit_node_button']['field'] = 'edit_node_button';
+  $handler->display->display_options['fields']['edit_node_button']['label'] = '';
+  $handler->display->display_options['fields']['edit_node_button']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['edit_node_button']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['edit_node_button']['size'] = 'xs';
+  /* Field: Global: Custom text */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = 'Actions';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '[edit_node_button]';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* Filter criterion: Content: Published */
@@ -732,7 +757,9 @@ function bonsai_views_default_views() {
   $handler->display->display_options['fields']['edit_node_button']['id'] = 'edit_node_button';
   $handler->display->display_options['fields']['edit_node_button']['table'] = 'node';
   $handler->display->display_options['fields']['edit_node_button']['field'] = 'edit_node_button';
+  $handler->display->display_options['fields']['edit_node_button']['label'] = '';
   $handler->display->display_options['fields']['edit_node_button']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['edit_node_button']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['edit_node_button']['size'] = 'xs';
   /* Field: Global: Custom text */
   $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
@@ -819,7 +846,6 @@ function bonsai_views_default_views() {
     t('From'),
     t('To'),
     t('Date'),
-    t('Edit button link'),
     t('Actions'),
     t('[edit_node_button]'),
     t('Message Labels (bonsai_labels_ref)'),
@@ -831,7 +857,6 @@ function bonsai_views_default_views() {
     t('author'),
     t('Sent'),
     t('<div class="alert alert-warning"><span class="fa fa-exclamation"></span> There are no messages in the Sent folder at the moment.</div>'),
-    t('Real name'),
     t('Spam'),
     t('<div class="alert alert-warning"><span class="fa fa-exclamation"></span> There are no messages in the Spam folder at the moment.</div>'),
     t('Labels'),
