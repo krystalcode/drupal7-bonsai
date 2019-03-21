@@ -453,6 +453,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'bonsai_message_email' => 'bonsai_message_email',
   );
+  $handler->display->display_options['filters']['type']['group'] = 1;
   /* Filter criterion: Content: Message Labels (bonsai_labels_ref) */
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['id'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['table'] = 'field_data_bonsai_labels_ref';
@@ -462,6 +463,7 @@ function bonsai_views_default_views() {
   $sent_labels = _bonsai_taxonomy_term_multiple_by_name(array('Sent'), array('tids_only' => TRUE));
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['value'] = $sent_labels;
 
+  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['group'] = 1;
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator_id'] = 'bonsai_labels_ref_tid_op';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Message Labels (bonsai_labels_ref)';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator'] = 'bonsai_labels_ref_tid_op';
@@ -476,6 +478,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_email_email']['table'] = 'field_data_bonsai_email';
   $handler->display->display_options['filters']['bonsai_email_email']['field'] = 'bonsai_email_email';
   $handler->display->display_options['filters']['bonsai_email_email']['operator'] = 'contains';
+  $handler->display->display_options['filters']['bonsai_email_email']['group'] = 1;
   $handler->display->display_options['filters']['bonsai_email_email']['exposed'] = TRUE;
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['operator_id'] = 'bonsai_email_email_op';
   $handler->display->display_options['filters']['bonsai_email_email']['expose']['label'] = 'From';
@@ -490,6 +493,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_emails_email']['table'] = 'field_data_bonsai_emails';
   $handler->display->display_options['filters']['bonsai_emails_email']['field'] = 'bonsai_emails_email';
   $handler->display->display_options['filters']['bonsai_emails_email']['operator'] = 'contains';
+  $handler->display->display_options['filters']['bonsai_emails_email']['group'] = 1;
   $handler->display->display_options['filters']['bonsai_emails_email']['exposed'] = TRUE;
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['operator_id'] = 'bonsai_emails_email_op';
   $handler->display->display_options['filters']['bonsai_emails_email']['expose']['label'] = 'To';
@@ -783,13 +787,11 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'bonsai_message_email' => 'bonsai_message_email',
   );
-  $handler->display->display_options['filters']['type']['group'] = 1;
   /* Filter criterion: Content: ID (bonsai_email_id) */
   $handler->display->display_options['filters']['bonsai_email_id_value']['id'] = 'bonsai_email_id_value';
   $handler->display->display_options['filters']['bonsai_email_id_value']['table'] = 'field_data_bonsai_email_id';
   $handler->display->display_options['filters']['bonsai_email_id_value']['field'] = 'bonsai_email_id_value';
   $handler->display->display_options['filters']['bonsai_email_id_value']['operator'] = 'not empty';
-  $handler->display->display_options['filters']['bonsai_email_id_value']['group'] = 1;
   /* Filter criterion: Content: From (bonsai_email) */
   $handler->display->display_options['filters']['bonsai_email_email']['id'] = 'bonsai_email_email';
   $handler->display->display_options['filters']['bonsai_email_email']['table'] = 'field_data_bonsai_email';
