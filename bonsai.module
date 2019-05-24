@@ -528,7 +528,7 @@ function bonsai_cron_queue_info() {
     'worker callback' => '_bonsai_queue_worker__bonsai_messages_incoming',
   );
 
-  // Queue for processing newly fetched messages.
+  // Queue for processing delivered messages.
   $items['bonsai_messages_delivered'] = array(
     'worker callback' => '_bonsai_queue_worker__bonsai_messages_delivered',
   );
