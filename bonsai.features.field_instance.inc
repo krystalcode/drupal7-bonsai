@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * bonsai.features.field_instance.inc
@@ -625,7 +626,7 @@ function bonsai_field_default_field_instances() {
       'description_field' => 0,
       'entity_translation_sync' => FALSE,
       'file_directory' => 'node/bonsai_message_email/bonsai_files',
-      'file_extensions' => 'txt',
+      'file_extensions' => 'txt pdf xlsx xlsm doc docx tiff xml zip',
       'max_filesize' => '',
       'user_register_form' => FALSE,
     ),
@@ -786,6 +787,7 @@ function bonsai_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -1013,7 +1015,7 @@ function bonsai_field_default_field_instances() {
       'active' => 1,
       'module' => 'date',
       'settings' => array(
-        'increment' => 15,
+        'increment' => 1,
         'input_format' => 'm/d/Y - H:i:s',
         'input_format_custom' => '',
         'label_position' => 'above',

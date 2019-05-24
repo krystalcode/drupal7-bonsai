@@ -204,6 +204,88 @@ function bonsai_node_grants($account, $op) {
 }
 
 /**
+ * Implements hook_action_info().
+ *
+ * Add actions that will be made available in Views Bulk Operations.
+ *
+ * @Issue(
+ *   "Add action for adding labels to email messages"
+ *   type="feature",
+ *   priority="normal"
+ * )
+ * @Issue(
+ *   "Add action for moving folder AND adding labels to email messages"
+ *   type="feature",
+ *   priority="normal"
+ * )
+ * @Issue(
+ *   "Check if we can restrict operations to email message nodes only"
+ *   type="bug",
+ *   priority="normal"
+ * )
+ */
+function bonsai_action_info() {
+  return array(
+    'bonsai_move_to_folder' => array(
+      'type' => 'node',
+      'label' => t('Move email messages to a folder'),
+      'behavior' => array('changes_property'),
+      'configurable' => TRUE,
+      'vbo_configurable' => FALSE,
+      'triggers' => array('any'),
+    ),
+  );
+}
+
+/**
+ * Form provider for the `move_to_folder` action.
+ *
+ * Allows selecting a folder that email messages will be moved to.
+ */
+function bonsai_move_to_folder_form() {
+  $form = array();
+
+  $terms = _bonsai_all_folders();
+  $options = array_combine(
+    array_column($terms, 'tid'),
+    array_column($terms, 'name')
+  );
+  $form['folder_id'] = array(
+    '#type' => 'select',
+    '#title' => t('Move to folder'),
+    '#description' => t('Selected email messages will be removed from their current folder and will be moved to the selected folder.'),
+    '#options' => $options,
+  );
+
+  return $form;
+}
+
+/**
+ * Submit function for the `move_to_folder` action.
+ */
+function bonsai_move_to_folder_submit($form, &$form_state) {
+  return array(
+    'tid' => $form_state['values']['folder_id'],
+  );
+}
+
+/**
+ * Performs the `move_to_folder` action.
+ */
+function bonsai_move_to_folder(&$node, $context) {
+  if (!isset($node->bonsai_labels_ref)) {
+    return;
+  }
+
+  if (!isset($context['tid'])) {
+    return;
+  }
+
+  $folder = taxonomy_term_load($context['tid']);
+  _bonsai_message_add_folder($node, $folder);
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, $form_id) {
@@ -1137,6 +1219,41 @@ function _bonsai_email_get_domain($email) {
   return end($email_parts);
 }
 
+function _bonsai_label_is_folder($label) {
+  return (bool) preg_match("/[A-Z]/", substr($label->name, 0, 1));
+}
+
+function _bonsai_message_add_folder($node, $folder) {
+  $node_wrapper = _bonsai_ensure_node_wrapper($node);
+  $current_terms = $node_wrapper->bonsai_labels_ref->value();
+
+  // If we don't currently have labels, just add the folder.
+  if (!$current_terms) {
+    $node_wrapper->bonsai_labels_ref->set([$folder]);
+    return;
+  }
+
+  // Add the folder first so that it is before labels; we will be ignoring all
+  // current folders, messages can have only one folder.
+  $labels = array($folder);
+
+  // Add to the new labels all current labels apart from folders.
+  // @Issue(
+  //   "Optimize the add folder algorithm to not do anything if the folder
+  //   already exists and is unique in the message"
+  //   type="improvement"
+  //   priority="normal"
+  //   labels="performance"
+  // )
+  foreach ($current_terms as $term) {
+    if (!_bonsai_label_is_folder($term)) {
+      $labels[] = $term;
+    }
+  }
+
+  $node_wrapper->bonsai_labels_ref->set($labels);
+}
+
 function _bonsai_message_add_labels($node_wrapper, $labels) {
   if (!$labels) {
     return;
@@ -1246,6 +1363,127 @@ function _bonsai_taxonomy_term_multiple_by_name(array $names, array $options = a
   }
 
   return $terms;
+}
+
+function _bonsai_taxonomy_term_all_by_vocabulary(array $options = array()) {
+  $options = array_merge(
+    array(
+      'vocabulary' => 'bonsai_labels',
+      'tids_only'  => FALSE,
+    ),
+    $options
+  );
+
+  $conditions = array();
+  if (isset($options['vocabulary'])) {
+    $vocabularies = taxonomy_vocabulary_get_names();
+    if (isset($vocabularies[$options['vocabulary']])) {
+      $conditions['vid'] = $vocabularies[$options['vocabulary']]->vid;
+    }
+    else {
+      // Return an empty array when filtering by a non-existing vocabulary.
+      return array();
+    }
+  }
+
+  $terms = taxonomy_term_load_multiple(array(), $conditions);
+
+  if (!$terms) {
+    array();
+  }
+
+  if ($options['tids_only']) {
+    return array_keys($terms);
+  }
+
+  return $terms;
+}
+
+function _bonsai_all_folders() {
+  return _bonsai_taxonomy_term_all_by_vocabulary_and_case('upper');
+}
+
+function _bonsai_taxonomy_term_all_by_vocabulary_and_case(
+  $case = 'all',
+  array $options = array()
+) {
+  if ($case === 'all') {
+    return _bonsai_taxonomy_term_all_by_vocabulary($options);
+  }
+
+  $options = array_merge(
+    array(
+      'vocabulary' => 'bonsai_labels',
+      'tids_only'  => FALSE,
+    ),
+    $options
+  );
+
+  // Get the vocabulary ID.
+  $vid = NULL;
+  $vocabularies = array();
+  if (isset($options['vocabulary'])) {
+    $vocabularies = taxonomy_vocabulary_get_names();
+    if (isset($vocabularies[$options['vocabulary']])) {
+      $vid = $vocabularies[$options['vocabulary']]->vid;
+    }
+    else {
+      // Return an empty array when filtering by a non-existing vocabulary.
+      return array();
+    }
+  }
+
+  // Create the part of the query that will select terms depending on the first
+  // character of their names; folders have an upper-case first letter while
+  // labels have a lower-case first letter.
+  $case_query = 'ASCII(ttd.name) ';
+  switch ($case) {
+    case 'upper':
+      $case_query .= 'BETWEEN 65 AND 90';
+      break;
+    case 'lower':
+      $case_query .= 'BETWEEN 97 AND 122';
+      break;
+
+    default:
+      $vocabulary_text = 'all vocabularies';
+      if ($vid) {
+        $vocabulary_text = 'the "' . $vocabularies[$options['vocabulary']]->name . '" vocabulary';
+      }
+      throw new \Exception(
+        sprintf(
+          'Unknow case type "%s" given when trying to load taxonomy terms for %s.',
+          $case,
+          $vocabulary_text
+        )
+      );
+  }
+
+  // Get the terms.
+  $query = 'SELECT ttd.tid FROM {taxonomy_term_data} ttd WHERE ';
+  if ($vid) {
+    $query .= 'ttd.vid = :vid AND ';
+  }
+  $query .= $case_query;
+  /**
+   * @Issue(
+   *   "Allow defining the sort order as an option incl. for non-case queries"
+   *   type="bug"
+   *   priority="normal"
+   * )
+   */
+  $query .= ' ORDER BY ttd.name ASC';
+  $results = db_query($query, array(':vid' => $vid));
+  $tids = array();
+  foreach ($results as $result) {
+    $tids[] = $result->tid;
+  }
+
+  if ($options['tids_only']) {
+    return $tids;
+  }
+
+  return taxonomy_term_load_multiple($tids);
 }
 
 function _bonsai_node_add_attachment($attachment, $node_wrapper) {
