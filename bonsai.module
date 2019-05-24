@@ -722,11 +722,34 @@ function _bonsai_cron__bonsai_messages_delivered($domain = NULL, $api_key = NULL
       continue;
     }
 
+
+    // Check if there already is a queue item for the node; they would contain
+    // the node ID and the email ID. No need to queue it again in that case.
+    $queue_items = db_select('queue', 'q')
+      ->fields('q', array('data'))
+      ->condition('q.name', 'bonsai_messages_delivered')
+      ->condition('q.data', '%node_id%' . $node_wrapper->getIdentifier() . '%', 'LIKE')
+      ->condition('q.data', '%' . db_like($message->{'Message-Id'}) . '%', 'LIKE')
+      ->execute()
+      ->fetchAll();
+    foreach ($queue_items as $queue_item) {
+      if (empty($queue_item->data)) {
+        continue;
+      }
+      $data = unserialize($queue_item->data);
+      if (empty($data['node_id'])) {
+        continue;
+      }
+      if ($data['node_id'] == $node_wrapper->getIdentifier()) {
+        continue 2;
+      }
+    }
+
+    // Create the queue item.
     $update_info = array(
       'node_id' => $node_wrapper->getIdentifier(),
       'message' => json_encode($message),
     );
-
     $queue->createItem($update_info);
   }
 }
