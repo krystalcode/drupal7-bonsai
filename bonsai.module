@@ -955,8 +955,8 @@ function _bonsai_queue_worker__bonsai_messages_delivered($update_info) {
     throw new \Exception('Not all required data is available for processing an item of the "bonsai_messages_delivered" queue');
   }
 
-
-  $messageId    = $update_info['message']->{'Message-Id'};
+  $message      = json_decode($update_info['message']);
+  $messageId    = $message->{'Message-Id'};
   $node         = node_load($update_info['node_id']);
   $node_wrapper = entity_metadata_wrapper('node', $node);
 
@@ -999,7 +999,6 @@ function _bonsai_queue_worker__bonsai_messages_delivered($update_info) {
     return;
   }
 
-  $message     = json_decode($update_info['message']);
   $transformer = new MessageToNodeTransformer();
   $transformer->transform($message, array('node' => $node_wrapper));
 
