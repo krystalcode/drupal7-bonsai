@@ -33,8 +33,8 @@ function _bonsai_messages_send_page($node) {
   // We'll be using an entity wrapper for getting field values more easily.
   $node_wrapper = entity_metadata_wrapper('node', $node);
 
-  $domain = variable_get('bonsai_domain');
-  $client = bonsai_get_client();
+  list($domain, $api_key) = _bonsai_messages_send_page__get_domain($node_wrapper);
+  $client = bonsai_get_client($api_key);
 
   // Mandatory message fields.
   $message = array(
@@ -329,4 +329,47 @@ function _bonsai_attachments_add_page($node) {
 
   // Go back to the node page.
   drupal_goto('node/' . $node_wrapper->getIdentifier());
+}
+
+/**
+ * Determines the domain/key pair for which to send the given email message.
+ *
+ * It will first try to get the domain/key pair from the new multi-domain
+ * settings; if such settings do not exist it will use the now deprecated
+ * globally configured domain.
+ */
+function _bonsai_messages_send_page__get_domain($node_wrapper) {
+  $domain = NULL;
+  $api_key = NULL;
+
+  $domains = variable_get('bonsai_domains');
+  if ($domains) {
+    $from = $node_wrapper->bonsai_email->value();
+    $domain = _bonsai_email_get_domain($from);
+    if (isset($domains[$domain])) {
+      $api_key = $domains[$domain];
+    }
+    else {
+      watchdog(
+        'bonsai',
+        'Trying to send an email from an unsupported domain. The node ID of the email is "!node_id" and the sender email address is "@sender".',
+        array(
+          '!node_id' => $node_wrapper->getIdentifier(),
+          '@sender' => $from,
+        ),
+        WATCHDOG_ERROR
+      );
+      drupal_set_message(
+        t('The domain of the email address you are trying to send the message from is not supported. Check for mistakes in the sender email address or contact the system administrator to properly set up the domain.'),
+        'error'
+      );
+      return;
+    }
+  }
+
+  if (!$domain) {
+    $domain = variable_get('bonsai_domain');
+  }
+
+  return array($domain, $api_key);
 }
