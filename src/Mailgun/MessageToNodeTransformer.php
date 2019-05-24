@@ -88,7 +88,7 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     // subject, we store a placeholder field.
     /**
      * @Issue(
-     *   "Change the email message's node view page to be the email's subject"
+     *   "Change the message's node view page title to be the email's subject"
      *   type="bug"
      *   priority="low"
      *   labels="ux"
@@ -168,7 +168,7 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
      *   labels="security"
      * )
      * @Issue(
-     *   "Considering not adding the Inbox labels to Spam messages"
+     *   "Consider not adding the Inbox labels to Spam messages"
      *   type="improvement"
      *   priority="normal"
      *   labels="ux"
