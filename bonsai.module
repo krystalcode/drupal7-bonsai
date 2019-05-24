@@ -504,8 +504,17 @@ function bonsai_node_presave($node) {
  * from the email service provider.
  */
 function bonsai_cron() {
-  _bonsai_cron__bonsai_messages_incoming();
-  _bonsai_cron__bonsai_messages_delivered();
+  $domains = variable_get('bonsai_domains');
+  if (!$domains) {
+    _bonsai_cron__bonsai_messages_incoming();
+    _bonsai_cron__bonsai_messages_delivered();
+    return;
+  }
+
+  foreach ($domains as $domain => $api_key) {
+    _bonsai_cron__bonsai_messages_incoming($domain, $api_key);
+    _bonsai_cron__bonsai_messages_delivered($domain, $api_key);
+  }
 }
 
 /**
@@ -540,12 +549,27 @@ function bonsai_cron_queue_info() {
 
 /**
  * Implements hook_cron via bonsai_cron().
+ *
+ * @param string|null $domain
+ *   The domain for which to fetch the incoming messages. If no domain is given,
+ *   the now deprecated globally configured domain will be used.
+ * @param string|null $api_key
+ *   The API key for the given domain. If no API key is given, the now
+ *   deprecated globally configured domain will be used.
  */
-function _bonsai_cron__bonsai_messages_incoming() {
+function _bonsai_cron__bonsai_messages_incoming($domain = NULL, $api_key = NULL) {
   // Fetch incoming messages from the email service provider.
-  $domain     = variable_get('bonsai_domain');
-  $repository = bonsai_get_repository(array('transform_messages' => TRUE));
-  $messages   = $repository->getList(
+  if (!$domain) {
+    $domain = variable_get('bonsai_domain');
+  }
+  $repository = bonsai_get_repository(
+    array(
+      'api_key' => $api_key,
+      'transform_messages' => TRUE,
+    )
+  );
+
+  $messages = $repository->getList(
     array(
       'domain' => $domain,
       /**
@@ -593,11 +617,21 @@ function _bonsai_cron__bonsai_messages_incoming() {
 
 /**
  * Implements hook_cron via bonsai_cron().
+ *
+ * @param string|null $domain
+ *   The domain for which to update the delivered messages for. If no domain is
+ *   given, the now deprecated globally configured domain will be used.
+ * @param string|null $api_key
+ *   The API key for the given domain. If no API key is given, the now
+ *   deprecated globally configured domain will be used.
  */
-function _bonsai_cron__bonsai_messages_delivered() {
+function _bonsai_cron__bonsai_messages_delivered($domain = NULL, $api_key = NULL) {
   // Fetch delivered messages from the email service provider.
-  $domain     = variable_get('bonsai_domain');
-  $repository = bonsai_get_repository();
+  if (!$domain) {
+    $domain = variable_get('bonsai_domain');
+  }
+  $repository = bonsai_get_repository(array('api_key' => $api_key));
+
   $messages   = $repository->getList(
     array(
       'domain'     => $domain,
@@ -712,9 +746,20 @@ function _bonsai_cron__bonsai_messages_delivered() {
  *
  * Only Mailgun is supported at the moment, so we create and return the client
  * directly.
+ *
+ * @param string|null $api_key
+ *   The API key with which to initialize the Mailgun client. If no key is
+ *   given, the client will be initialized with the now deprecated globally
+ *   configured API key.
+ *
+ * @return \Mailgun\Mailgun
+ *   The initialized Mailgun client.
  */
-function bonsai_get_client() {
-  $api_key = variable_get('bonsai_mailgun_api_key');
+function bonsai_get_client($api_key = NULL) {
+  if (!$api_key) {
+    $api_key = variable_get('bonsai_mailgun_api_key');
+  }
+
   return new \Mailgun\Mailgun($api_key);
 }
 
@@ -729,14 +774,20 @@ function bonsai_get_client() {
 function bonsai_get_repository(array $options = array()) {
   $options = array_merge(
     array(
+      'api_key'            => NULL,
       'dispatch_events'    => FALSE,
       'transform_messages' => FALSE,
     ),
     $options
   );
 
-  $api_key = variable_get('bonsai_mailgun_api_key');
-  $client  = bonsai_get_client();
+  if (isset($options['api_key'])) {
+    $api_key = $options['api_key'];
+  }
+  else {
+    $api_key = variable_get('bonsai_mailgun_api_key');
+  }
+  $client  = bonsai_get_client($api_key);
 
   // The caller may provide an Event Dispatcher that will be used to dispatch
   // events for modifying Mailgun Events before the Bonsai PHP library fetches
