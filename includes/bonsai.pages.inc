@@ -5,6 +5,8 @@
  * bonsai.pages.inc
  */
 
+use Bonsai\RepositoryInterface;
+
 /**
  * @Issue(
  *   "Properly handle error cases instead of always returning 404"
@@ -331,6 +333,122 @@ function _bonsai_attachments_add_page($node) {
   drupal_goto('node/' . $node_wrapper->getIdentifier());
 }
 
+function _bonsai_messages_webhooks_page() {
+  // Mailgun webhook requests should all be POST requests.
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    drupal_not_found();
+    return;
+  }
+
+  $input = file_get_contents('php://input');
+  $data = json_decode($input, TRUE);
+
+  // Temporary logging of received data; will be removed once the feature is
+  // developed and tested.
+  watchdog(
+    'bonsai',
+    'Received a webhook event with the following data: "@data"',
+    array(
+      '@data' => $input,
+    ),
+    WATCHDOG_DEBUG
+  );
+
+  /**
+   * @Issue(
+   *   "Verify webhook signature taking into account the event domain"
+   *   type="improvement"
+   *   priority="normal"
+   *   labels="security"
+   * )
+   * @Issue(
+   *   "Prevent webhook replay attacks by checking for reused tokens"
+   *   type="improvement"
+   *   priority="normal"
+   *   labels="security"
+   * )
+   */
+
+  // We will be issuing a request for getting the full message. Determine the
+  // domain and API key to use for the request by checking if there is a
+  // recipient matching with one of the supported domains.
+  /**
+   * @Issue(
+   *   "Find the best way to detect domain/key for webhook events that would
+   *   work for events other than stored events as well"
+   *   type="bug"
+   *   priority="low"
+   *   labels="correctedness"
+   * )
+   */
+  $domains = variable_get('bonsai_domains');
+  if (!$domains) {
+    $domains = [
+      variable_get('bonsai_domain') => variable_get('bonsai_mailgun_api_key')
+    ];
+  }
+  $domains_without_keys = array_keys($domains);
+
+  $api_key = NULL;
+  $domain = NULL;
+
+  // First, check if the recipient domain is given in the response.
+  if (!empty($data['event-data']['recipient-domain'])) {
+    $domain = $data['event-data']['recipient-domain'];
+    if (in_array($domain, $domains_without_keys)) {
+      $api_key = $domains[$domain];
+    }
+  }
+  // Otherwise, try to find a match from the message's recipients.
+ elseif (!empty($data['event-data']['message']['recipients'])) {
+    foreach ($data['event-data']['message']['recipients'] as $recipient) {
+      $recipient_domain = _bonsai_email_get_domain($recipient);
+      if (!in_array($recipient_domain, $domains_without_keys)) {
+        continue;
+      }
+
+      $api_key = $domains[$recipient_domain];
+      $domain = $recipient_domain;
+    }
+  }
+
+  if (!$domain || !$api_key) {
+    watchdog(
+      'bonsai',
+      'Received a webhook event for which we could not determine a supported domain/API key pair. The ID of the event is "@event_id".',
+      array(
+        '@event_id' => $data['event-data']['id'],
+      ),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+
+
+  // Call the appropriate function depending on the event type.
+  $event_type = $data['event-data']['event'];
+  $function = '_bonsai_messages_webhooks_page__' . $event_type;
+  if (!function_exists($function)) {
+    watchdog(
+      'bonsai',
+      'Received a webhook event of an unsupported type "@event_type". The ID of the event is "@event_id".',
+      array(
+        '@event_type' => $event_type,
+        '@event_id' => $data['event-data']['id'],
+      ),
+      WATCHDOG_ERROR
+    );
+    return;
+  }
+  $repository = bonsai_get_repository(
+    array(
+      'api_key' => $api_key,
+      'transform_messages' => TRUE,
+    )
+  );
+  $function($data['event-data'], $repository);
+}
+
 /**
  * Determines the domain/key pair for which to send the given email message.
  *
@@ -372,4 +490,26 @@ function _bonsai_messages_send_page__get_domain($node_wrapper) {
   }
 
   return array($domain, $api_key);
+}
+
+function _bonsai_messages_webhooks_page__stored($event_data, RepositoryInterface $repository) {
+  // Fetch the full message.
+  $message = $repository->getOne($event_data['storage']['url']);
+  if (!$message) {
+    return;
+  }
+
+  $queue = DrupalQueue::get('bonsai_messages_incoming');
+
+  // Store message to the queue for separately processing it later.
+  // Do not reprocess messages that have already been stored as nodes.
+  $node_exists = _bonsai_email_message_exists($message, TRUE);
+  if ($node_exists) {
+    return;
+  }
+
+  if (_bonsai_email_queue_item_exists__incoming($message)) {
+    return;
+  }
+  $queue->createItem($message);
 }

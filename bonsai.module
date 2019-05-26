@@ -92,6 +92,16 @@ function bonsai_menu() {
     'file path' => drupal_get_path('module', 'bonsai'),
   );
 
+  // Menu item for receiving Mailgun webhooks.
+  $items['bonsai/messages/email/webhooks'] = array(
+    'title' => 'Webhooks',
+    'page callback' => '_bonsai_messages_webhooks_page',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'file' => 'includes/bonsai.pages.inc',
+    'file path' => drupal_get_path('module', 'bonsai'),
+  );
+
   return $items;
 }
 
@@ -693,6 +703,11 @@ function _bonsai_cron__bonsai_messages_incoming($domain = NULL, $api_key = NULL)
       return;
     }
 
+    // Check if there already is a queue item for the node; it would contain the
+    // email ID. No need to queue it again in that case.
+    if (_bonsai_email_queue_item_exists__incoming($message)) {
+      continue;
+    }
     $queue->createItem($message);
   }
 }
@@ -803,7 +818,6 @@ function _bonsai_cron__bonsai_messages_delivered($domain = NULL, $api_key = NULL
       );
       continue;
     }
-
 
     // Check if there already is a queue item for the node; they would contain
     // the node ID and the email ID. No need to queue it again in that case.
@@ -1325,6 +1339,27 @@ function _bonsai_email_email_has_header($email_json, $header) {
   foreach ($message->{'message-headers'} as $message_header) {
     if ($message_header[0] === $header) {
       return $message_header[1];
+    }
+  }
+
+  return FALSE;
+}
+
+function _bonsai_email_queue_item_exists__incoming($incoming_node_wrapper) {
+  $email_id = $incoming_node_wrapper->bonsai_email_id->value();
+  $queue_items = db_select('queue', 'q')
+    ->fields('q', array('data'))
+    ->condition('q.name', 'bonsai_messages_incoming')
+    ->condition('q.data', '%' . db_like($email_id) . '%', 'LIKE')
+    ->execute()
+    ->fetchAll();
+  foreach ($queue_items as $queue_item) {
+    if (empty($queue_item->data)) {
+      continue;
+    }
+    $existing_node_wrapper = unserialize($queue_item->data);
+    if ($existing_node_wrapper->bonsai_email_id->value() === $email_id) {
+      return TRUE;
     }
   }
 
