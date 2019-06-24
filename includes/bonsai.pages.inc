@@ -175,7 +175,7 @@ function _bonsai_messages_send_page($node) {
 }
 
 function _bonsai_messages_clone_page($existing_node) {
-  // Attachments are meant to be added via a POST request.
+  // Cloning is meant to happen via a POST request.
   if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     //drupal_not_found();
     //return;
