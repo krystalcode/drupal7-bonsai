@@ -333,6 +333,53 @@ function _bonsai_attachments_add_page($node) {
   drupal_goto('node/' . $node_wrapper->getIdentifier());
 }
 
+function _bonsai_messages_move_page($node) {
+  // Moving the message to a folder is meant to happen via a POST request.
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    drupal_not_found();
+    return;
+  }
+
+  // Currently only the node type provided by this module is supported.
+  if (empty($node) || $node->type !== 'bonsai_message_email') {
+    drupal_not_found();
+    return;
+  }
+
+  // We must be given the term ID of the folder to move the message to.
+  if (empty($_POST['tid'])) {
+    drupal_not_found();
+    return;
+  }
+
+  /**
+   * @Issue(
+   *   "Check if the message already has the requested folder"
+   *   type="bug"
+   *   priority="low"
+   * )
+   */
+
+  // The given term must be a folder.
+  $folder = taxonomy_term_load($_POST['tid']);
+  if (!$folder || $folder->vocabulary_machine_name !== 'bonsai_labels') {
+    drupal_not_found();
+    return;
+  }
+  if (!_bonsai_label_is_folder($folder)) {
+    drupal_not_found();
+    return;
+  }
+
+  // Otherwise all good - add the folder.
+  $node_wrapper = entity_metadata_wrapper('node', $node);
+  _bonsai_message_add_folder($node_wrapper, $folder);
+  $node_wrapper->save();
+
+  // Return back to the node view page.
+  drupal_goto('node/' . $node_wrapper->getIdentifier());
+}
+
 function _bonsai_messages_webhooks_page() {
   // Mailgun webhook requests should all be POST requests.
   if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

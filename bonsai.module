@@ -81,6 +81,17 @@ function bonsai_menu() {
     'file path' => drupal_get_path('module', 'bonsai'),
   );
 
+  // Menu item for moving messages.
+  $items['bonsai/messages/%node/move'] = array(
+    'title' => 'Move Message',
+    'page callback' => '_bonsai_messages_move_page',
+    'page arguments' => array(2),
+    'access callback' => '_bonsai_messages_move_access',
+    'access arguments' => array(2),
+    'file' => 'includes/bonsai.pages.inc',
+    'file path' => drupal_get_path('module', 'bonsai'),
+  );
+
   // Menu item for cloning messages.
   $items['bonsai/messages/%node/clone'] = array(
     'title' => 'Clone Message',
@@ -1221,6 +1232,23 @@ function _bonsai_label_is_folder($label) {
   return (bool) preg_match("/[A-Z]/", substr($label->name, 0, 1));
 }
 
+function _bonsai_message_get_folders($node) {
+  $node_wrapper = _bonsai_ensure_node_wrapper($node);
+
+  return array_filter(
+    $node_wrapper->bonsai_labels_ref->value(),
+    function ($term) {
+      return _bonsai_label_is_folder($term);
+    }
+  );
+}
+
+function _bonsai_message_get_folder_names($node) {
+  $folders = _bonsai_message_get_folders($node);
+
+  return array_unique(array_column($folders, 'name'));
+}
+
 function _bonsai_message_add_folder($node, $folder) {
   $node_wrapper = _bonsai_ensure_node_wrapper($node);
   $current_terms = $node_wrapper->bonsai_labels_ref->value();
@@ -1816,4 +1844,9 @@ function _bonsai_messages_send_access($node) {
 function _bonsai_messages_clone_access($node) {
   // Check if the user has the right permissions to clone the message.
   return node_access('view', $node) && user_access('create bonsai_message_email content');
+}
+
+function _bonsai_messages_move_access($node) {
+  // Check if the user has the right permissions to move the message.
+  return $node->status && node_access('update', $node);
 }
