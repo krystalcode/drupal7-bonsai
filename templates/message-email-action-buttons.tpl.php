@@ -1,5 +1,5 @@
 <?php if ($can_send || $can_create_reply || $can_clone): ?>
-<div id="bonsai-message-email-actions" class="bonsai-message-email-section">
+<div class="bonsai-message-email-section bonsai-message-email-actions">
 
   <?php /* Send button */ ?>
   <?php if ($can_send): ?>
