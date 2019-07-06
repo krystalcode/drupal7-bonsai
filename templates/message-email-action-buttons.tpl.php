@@ -4,7 +4,7 @@
   <?php /* Send button */ ?>
   <?php if ($can_send): ?>
   <form method="POST" action="<?php print url('bonsai/messages/' . $node->nid . '/send'); ?>">
-    <button type="submit" class="btn btn-primary btn-link" role="button">
+    <button type="submit" class="btn btn-link" role="button">
       <span class="fa fa-send"></span> Send
     </button>
   </form>
