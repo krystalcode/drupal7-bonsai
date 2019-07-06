@@ -25,6 +25,16 @@ function bonsai_theme() {
         'caption_html' => FALSE
       ),
     ),
+    'bonsai_message_email_action_buttons' => array(
+      'variables' => array(
+        'node' => NULL,
+        'can_send' => NULL,
+        'can_create_reply' => NULL,
+        'can_move' => NULL,
+        'can_clone' => NULL,
+      ),
+     'template' => 'templates/message-email-action-buttons',
+    ),
   );
 }
 
@@ -109,4 +119,79 @@ function theme_bootstrap_thumbnail_formatter($variables) {
   $thumbnail .= '</div>';
 
   return $thumbnail;
+}
+
+function template_preprocess_bonsai_message_email_action_buttons(
+  &$variables,
+  $hook
+) {
+  $nid = $variables['node']->nid;
+  // Prepare the links for the Reply and Reply To All buttons.
+  if ($variables['can_create_reply']) {
+    $link_options = array(
+      'attributes' => array(
+        'class' => array('btn btn-link'),
+      ),
+      'html' => TRUE,
+      'query' => array(
+        'bonsai_message_email_ref' => $nid,
+        'reply' => 'sender',
+      ),
+    );
+    $variables['reply_link'] = l(
+      '<span class="fa fa-reply"></span> ' . t('Reply'),
+      'node/add/bonsai-message-email',
+      $link_options
+    );
+
+    $link_options['query']['reply'] = 'all';
+    $variables['reply_all_link'] = l(
+      '<span class="fa fa-reply-all"></span> ' . t('Reply To All'),
+      'node/add/bonsai-message-email',
+      $link_options
+    );
+  }
+
+  if ($variables['can_move']) {
+    $node_wrapper = _bonsai_ensure_node_wrapper($variables['node']);
+    $current_folders = _bonsai_message_get_folder_names($node_wrapper);
+    /**
+     * @Issue(
+     *   "Allow moving to any folder instead of just the default ones"
+     *   type="improvement"
+     *   priority="normal"
+     *   labels="ux"
+     * )
+     */
+    $folders = _bonsai_taxonomy_term_multiple_by_name(array('Inbox', 'Archive', 'Spam', 'Trash'));
+    $move_folders = array_reduce(
+      $folders,
+      function ($carry, $item) use ($current_folders) {
+        if (isset($carry[$item->name]) || in_array($item->name, $current_folders)) {
+          return $carry;
+        }
+
+        $carry[$item->name]= $item->tid;
+        return $carry;
+      },
+      []
+    );
+
+    if ($move_folders) {
+      $variables['move_buttons'] = array();
+      $icons = array(
+        'Inbox' => 'envelope',
+        'Archive' => 'archive',
+        'Spam' => 'warning',
+        'Trash' => 'trash',
+      );
+      foreach ($move_folders as $folder_name => $folder_tid) {
+        $variables['move_buttons'][] = array(
+          'tid' => $folder_tid,
+          'name' => t($folder_name),
+          'icon' => $icons[$folder_name],
+        );
+      }
+    }
+  }
 }
