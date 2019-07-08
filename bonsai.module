@@ -1243,6 +1243,17 @@ function _bonsai_message_get_folders($node) {
   );
 }
 
+function _bonsai_message_get_labels($node) {
+  $node_wrapper = _bonsai_ensure_node_wrapper($node);
+
+  return array_filter(
+    $node_wrapper->bonsai_labels_ref->value(),
+    function ($term) {
+      return !_bonsai_label_is_folder($term);
+    }
+  );
+}
+
 function _bonsai_message_get_folder_names($node) {
   $folders = _bonsai_message_get_folders($node);
 

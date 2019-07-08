@@ -35,6 +35,12 @@ function bonsai_theme() {
       ),
      'template' => 'templates/message-email-action-buttons',
     ),
+    'bonsai_message_email_icons' => array(
+      'variables' => array(
+        'icons' => NULL,
+      ),
+     'template' => 'templates/message-email-icons',
+    ),
   );
 }
 
