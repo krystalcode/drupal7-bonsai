@@ -42,20 +42,14 @@ const BONSAI_EVENT_TYPE_STORED = 8;
  * from the email service provider.
  */
 function bonsai_event_cron() {
-  $event_types = _bonsai_event_types();
-
   $domains = variable_get('bonsai_domains');
   if (!$domains) {
-    foreach ($event_types as $event_type) {
-      _bonsai_event_cron__fetch_events($event_type);
-    }
+    _bonsai_event_cron__fetch_events();
     return;
   }
 
   foreach ($domains as $domain => $api_key) {
-    foreach ($event_types as $event_type) {
-      _bonsai_event_cron__fetch_events($event_type, $domain, $api_key);
-    }
+    _bonsai_event_cron__fetch_events($domain, $api_key);
   }
 }
 
