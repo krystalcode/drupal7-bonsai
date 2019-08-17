@@ -78,7 +78,7 @@ function bonsai_event_cron_queue_info() {
  */
 function bonsai_event_permission() {
   $permissions = array(
-    'bonsai view message events' => array(
+    'bonsai view any message event' => array(
       'title' => t('View all events associated with any message'),
     ),
   );
