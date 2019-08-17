@@ -7,6 +7,12 @@
 
 include_once 'bonsai_event.features.inc';
 
+// External dependencies.
+use Bonsai\Mailgun\EventRepository;
+
+// Internal dependencies.
+use Drupal\bonsai_event\Mailgun\EventToNodeTransformer;
+
 
 /**
  * Constants.
@@ -23,3 +29,294 @@ const BONSAI_EVENT_TYPE_CLICKED = 5;
 const BONSAI_EVENT_TYPE_UNSUBSCRIBED = 6;
 const BONSAI_EVENT_TYPE_COMPLAINED = 7;
 const BONSAI_EVENT_TYPE_STORED = 8;
+
+
+/**
+ * Hooks.
+ */
+
+/**
+ * Implements hook_cron().
+ *
+ * Defines a cron item for regularly fetching incoming or delivered messages
+ * from the email service provider.
+ */
+function bonsai_event_cron() {
+  $event_types = _bonsai_event_types();
+
+  $domains = variable_get('bonsai_domains');
+  if (!$domains) {
+    foreach ($event_types as $event_type) {
+      _bonsai_event_cron__fetch_events($event_type);
+    }
+    return;
+  }
+
+  foreach ($domains as $domain => $api_key) {
+    foreach ($event_types as $event_type) {
+      _bonsai_event_cron__fetch_events($event_type, $domain, $api_key);
+    }
+  }
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function bonsai_event_cron_queue_info() {
+  $items = array();
+
+  // Queue for storing newly fetched events.
+  $items['bonsai_event_process_event'] = array(
+    'worker callback' => '_bonsai_event_queue_worker__process_event',
+  );
+
+  return $items;
+}
+
+function _bonsai_event_cron__fetch_events($domain = NULL, $api_key = NULL) {
+  // Fetch new events from the service provider.
+  if (!$domain) {
+    $domain = variable_get('bonsai_domain');
+  }
+  $repository = bonsai_event_get_repository(
+    array(
+      'api_key' => $api_key,
+      'transform_events' => TRUE,
+    )
+  );
+
+  $events = $repository->getList(
+    array(
+      'domain' => $domain,
+      'limit' => variable_get('bonsai_event_cron_limit', 100),
+    )
+  );
+
+  if (empty($events)) {
+    return;
+  }
+
+  $queue = DrupalQueue::get('bonsai_event_process_event');
+
+  // Store each event to the queue for separately processing it later.
+  foreach ($events as $event) {
+    if (empty($event)) {
+      continue;
+    }
+
+    // Do not store again events that have already been stored. Events are never
+    // updated.
+    /**
+     * @Issue(
+     *   "Use an EventSubscriber for filtering out delivered events that have
+     *   already been stored"
+     *   type="improvement"
+     *   priority="performance"
+     * )
+     */
+    $node_exists = _bonsai_event_node_exists($event, TRUE);
+    if ($node_exists) {
+      continue;
+    }
+
+    /*
+    // Check if there already is a queue item for the node; they would contain
+    // the event ID. No need to queue it again in that case.
+    if (_bonsai_email_queue_item_exists__delivered($node_wrapper, $message)) {
+      continue;
+    }
+    */
+
+    // Create the queue item.
+    $queue->createItem($event);
+  }
+}
+
+
+/**
+ * Callbacks.
+ */
+
+/**
+ * Implements callback_queue_worker().
+ *
+ * Given a node entity wrapper that represents an event fetched from the email
+ * service provider, it prepares it and stores it as a message event node.
+ */
+function _bonsai_event_queue_worker__process_event($node_wrapper) {
+  if (empty($node_wrapper)) {
+    return;
+  }
+
+  // Make sure that the event does not already exists. This shouldn't happen
+  // since we check before creating the queue item as well, but it is good to
+  // double check to prevent duplicate events in the case of a regression bug.
+  $node_exists = _bonsai_event_node_exists($node_wrapper, TRUE);
+  if ($node_exists) {
+    return;
+  }
+
+  $node_wrapper->save();
+}
+
+
+/**
+ * Public API.
+ */
+
+/**
+ * Get the event repository for the email service provider.
+ *
+ * The repository is used for fetching events.
+ *
+ * Only Mailgun is supported at the moment, so we create and return the
+ * repository directly.
+ */
+function bonsai_event_get_repository(array $options = array()) {
+  $options = array_merge(
+    array(
+      'api_key'            => NULL,
+      'dispatch_events'    => FALSE,
+      'transform_events'   => FALSE,
+    ),
+    $options
+  );
+
+  if (isset($options['api_key'])) {
+    $api_key = $options['api_key'];
+  }
+  else {
+    $api_key = variable_get('bonsai_mailgun_api_key');
+  }
+  $client  = bonsai_get_client($api_key);
+
+  // The caller may provide an Event Dispatcher that will be used to dispatch
+  // events for modifying Mailgun Events fetched by the Bonsai PHP library.
+  $dispatcher = NULL;
+  if ($options['dispatch_events']) {
+    $dispatcher  = new EventDispatcher();
+  }
+
+  // The caller may provide an Event Transformer which will be used by the
+  // Bonsai PHP library to transform the Mailgun Events into a desired format
+  // e.g. a Drupal node, before returning them.
+  $event_transformer = NULL;
+  if ($options['transform_events']) {
+    $event_transformer = new EventToNodeTransformer();
+  }
+
+  return new EventRepository($client, $api_key, $dispatcher, $event_transformer);
+}
+
+
+/**
+ * Functions for internal use.
+ */
+
+function _bonsai_event_node_exists($node_wrapper, $access_bypass = FALSE) {
+  $event_id = $node_wrapper->bonsai_event_id->value();
+  return _bonsai_event_node_id_by_event_id($event_id, $access_bypass);
+}
+
+function _bonsai_event_node_id_by_event_id($event_id, $access_bypass = FALSE) {
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'bonsai_message_event')
+    ->fieldCondition('bonsai_event_id', 'value', $event_id)
+    ->range(0, 1)
+  ;
+
+  // Queue processing via cron runs as anonymous users. They are therefore
+  // always denied access to view messages, published or unpublished. In such
+  // cases we want to allow bypassing access control.
+  if ($access_bypass) {
+    $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+  }
+
+  $result = $query->execute();
+
+  if (empty($result['node'])) {
+    return FALSE;
+  }
+
+  return key($result['node']);
+}
+
+function _bonsai_event_node_by_event_id($event_id, $access_bypass = FALSE) {
+  $node_id = _bonsai_event_node_id_by_event_id($event_id, $access_bypass);
+
+  if ($node_id) {
+    return node_load($node_id);
+  }
+
+  return FALSE;
+}
+
+function _bonsai_event_failed_status_from_json($event) {
+  if ($event->event !== 'failed') {
+    return;
+  }
+
+  if ($event->severity === 'temporary') {
+    return BONSAI_EVENT_FAILED_STATUS_TEMPORARY;
+  }
+  if ($event->severity === 'permanent') {
+    return BONSAI_EVENT_FAILED_STATUS_PERMANENT;
+  }
+}
+
+function _bonsai_event_id_from_json($event) {
+  return _bonsai_event_timestamp_from_json($event) . ':' . $event->id;
+}
+
+function _bonsai_event_timestamp_from_json($event) {
+  return floor($event->timestamp);
+}
+
+function _bonsai_event_type_from_json($event) {
+  switch ($event->event) {
+    case 'accepted':
+      return BONSAI_EVENT_TYPE_ACCEPTED;
+    case 'rejected':
+      return BONSAI_EVENT_TYPE_REJECTED;
+    case 'delivered':
+      return BONSAI_EVENT_TYPE_DELIVERED;
+    case 'failed':
+      return BONSAI_EVENT_TYPE_FAILED;
+    case 'opened':
+      return BONSAI_EVENT_TYPE_OPENED;
+    case 'clicked':
+      return BONSAI_EVENT_TYPE_CLICKED;
+    case 'unsubscribed':
+      return BONSAI_EVENT_TYPE_UNSUBSCRIBED;
+    case 'complained':
+      return BONSAI_EVENT_TYPE_COMPLAINED;
+    case 'stored':
+      return BONSAI_EVENT_TYPE_STORED;
+    default:
+      watchdog(
+        'bonsai',
+        'Unknown event type "@event_type". Full event given was "@event"',
+        array(
+          '@event_type' => $event->event,
+          '@event' => json_encode($event),
+        ),
+        WATCHDOG_ERROR
+      );
+  }
+}
+
+function _bonsai_event_types() {
+  return array(
+    BONSAI_EVENT_TYPE_ACCEPTED,
+    BONSAI_EVENT_TYPE_REJECTED,
+    BONSAI_EVENT_TYPE_DELIVERED,
+    BONSAI_EVENT_TYPE_FAILED,
+    BONSAI_EVENT_TYPE_OPENED,
+    BONSAI_EVENT_TYPE_CLICKED,
+    BONSAI_EVENT_TYPE_UNSUBSCRIBED,
+    BONSAI_EVENT_TYPE_COMPLAINED,
+    BONSAI_EVENT_TYPE_STORED,
+  );
+}
