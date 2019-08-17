@@ -11,6 +11,16 @@
 function bonsai_event_user_default_permissions() {
   $permissions = array();
 
+  // Exported permission: 'bonsai view any message event'.
+  $permissions['bonsai view any message event'] = array(
+    'name' => 'bonsai view any message event',
+    'roles' => array(
+      'bonsai administrator' => 'bonsai administrator',
+      'bonsai user' => 'bonsai user',
+    ),
+    'module' => 'bonsai_event',
+  );
+
   // Exported permission: 'create bonsai_message_event content'.
   $permissions['create bonsai_message_event content'] = array(
     'name' => 'create bonsai_message_event content',
