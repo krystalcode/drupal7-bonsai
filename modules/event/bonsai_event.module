@@ -73,6 +73,19 @@ function bonsai_event_cron_queue_info() {
   return $items;
 }
 
+/**
+ * Implements hook_permission().
+ */
+function bonsai_event_permission() {
+  $permissions = array(
+    'bonsai view message events' => array(
+      'title' => t('View all events associated with any message'),
+    ),
+  );
+
+  return $permissions;
+}
+
 function _bonsai_event_cron__fetch_events($domain = NULL, $api_key = NULL) {
   // Fetch new events from the service provider.
   if (!$domain) {
