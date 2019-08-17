@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Code for the Bonsai Events feature.
+ */
+
+include_once 'bonsai_event.features.inc';
+
+
+/**
+ * Constants.
+ */
+const BONSAI_EVENT_FAILED_STATUS_TEMPORARY = 0;
+const BONSAI_EVENT_FAILED_STATUS_PERMANENT = 1;
+
+const BONSAI_EVENT_TYPE_ACCEPTED = 0;
+const BONSAI_EVENT_TYPE_REJECTED = 1;
+const BONSAI_EVENT_TYPE_DELIVERED = 2;
+const BONSAI_EVENT_TYPE_FAILED = 3;
+const BONSAI_EVENT_TYPE_OPENED = 4;
+const BONSAI_EVENT_TYPE_CLICKED = 5;
+const BONSAI_EVENT_TYPE_UNSUBSCRIBED = 6;
+const BONSAI_EVENT_TYPE_COMPLAINED = 7;
+const BONSAI_EVENT_TYPE_STORED = 8;
