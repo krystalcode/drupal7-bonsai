@@ -645,6 +645,23 @@ function bonsai_cron_queue_info() {
   return $items;
 }
 
+/**
+ * Implements hook_rules_action_info().
+ */
+function bonsai_rules_action_info() {
+  return array(
+    'bonsai_move_to_folder' => array(
+      'label' => t('Move an email message to a folder'),
+      'parameter' => array(
+        'node' => array('type' => 'node', 'label' => t('The message to move')),
+        'folder' => array('type' => 'text', 'label' => t('The folder to move the message to')),
+      ),
+      'group' => t('Bonsai'),
+      'base' => 'rules_action__bonsai_move_to_folder',
+    ),
+  );
+}
+
 
 /**
  * Hooks - indirect implementations.
@@ -1146,6 +1163,34 @@ function _bonsai_queue_worker__bonsai_conversations($node_id) {
     //$queue = DrupalQueue::get('bonsai_conversations');
     //$queue->createItem($node_wrapper->getIdentifier());
   }
+}
+
+/**
+ * Callback for the rules action that moves a bonsai message to a folder.
+ *
+ * @Issue(
+ *   "Validate that the given node is a bonsai message"
+ *   type="bug"
+ *   priority="normal"
+ * )
+ */
+function rules_action__bonsai_move_to_folder($node, $folder) {
+  $folders = array_reduce(
+    _bonsai_all_folders(),
+    function ($carry, $item) {
+      if (!isset($carry[$item->name])) {
+        $carry[$item->name] = $item;
+      }
+      return $carry;
+    },
+    array()
+  );
+
+  if (!isset($folders[$folder])) {
+    return;
+  }
+
+  _bonsai_message_add_folder($node, $folders[$folder]);
 }
 
 
