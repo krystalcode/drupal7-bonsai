@@ -1182,6 +1182,16 @@ function _bonsai_queue_worker__bonsai_conversations($node_id) {
  *   type="bug"
  *   priority="normal"
  * )
+ * @Issue(
+ *   "Log an error message if the folder does not exist"
+ *   type="bug"
+ *   priority="normal"
+ * )
+ * @Issue(
+ *   "Add a configuration option to create the folder if missing"
+ *   type="improvement"
+ *   priority="normal"
+ * )
  */
 function rules_action__bonsai_move_to_folder($node, $folder) {
   $folders = array_reduce(
