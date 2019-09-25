@@ -29,14 +29,6 @@ function bonsai_views_api($module = NULL, $api = NULL) {
  */
 function bonsai_node_info() {
   $items = array(
-    'bonsai_group_email' => array(
-      'name' => t('Email Message Group'),
-      'base' => 'node_content',
-      'description' => '',
-      'has_title' => '1',
-      'title_label' => t('Title'),
-      'help' => '',
-    ),
     'bonsai_message_email' => array(
       'name' => t('Email Message'),
       'base' => 'node_content',

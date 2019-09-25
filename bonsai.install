@@ -18,3 +18,21 @@ function bonsai_update_7001() {
   $term->name = 'spoof';
   taxonomy_term_save($term);
 }
+
+/**
+ * Remove OG field from email messages.
+ */
+function bonsai_update_7002() {
+  $field_names = array(
+    'og_bonsai_emails_ref',
+  );
+
+  foreach ($field_names as $field_name) {
+    $field_info = field_info_instance('node', $field_name, 'bonsai_message_email');
+    if (!$field_info) {
+      continue;
+    }
+
+    field_delete_field($field_name);
+  }
+}
