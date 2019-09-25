@@ -309,7 +309,7 @@ function bonsai_field_group_info() {
         'bootstrap_grid_col_lg' => '0',
         'required_fields' => 1,
         'classes' => 'group-r4 field-group-bootstrap_grid_row',
-        'description' => 'You may categorise messages using categories and labels. The Message Labels can play a role similar to traditional mail folders e.g. Inbox, Sent, Archive etc. or they can be custom labels that make sense to your team. You may use the Product Categories/Labels and the Blog Labels for messages that are relevant to the corresponding categories for better integration with the marketplace and the blog.',
+        'description' => 'You may categorise messages using folders and labels. The folders play a role similar to traditional mail folders e.g. Inbox, Sent, Archive etc. and should start with a uppercase character. The labels (starting with a lowercase character) can be custom labels that make sense to you and your team.',
       ),
     ),
   );
