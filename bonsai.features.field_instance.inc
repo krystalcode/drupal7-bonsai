@@ -1017,130 +1017,6 @@ function bonsai_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-bonsai_message_email-ogmk_blog_labels_ref'.
-  $field_instances['node-bonsai_message_email-ogmk_blog_labels_ref'] = array(
-    'bundle' => 'bonsai_message_email',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'taxonomy',
-        'settings' => array(),
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 24,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'ogmk_blog_labels_ref',
-    'label' => 'Blog Labels',
-    'required' => 0,
-    'settings' => array(
-      'entity_translation_sync' => FALSE,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-        'autocomplete_path' => 'taxonomy/autocomplete',
-        'size' => 60,
-      ),
-      'type' => 'options_select',
-      'weight' => 26,
-    ),
-  );
-
-  // Exported field_instance: 'node-bonsai_message_email-ogmk_categories_ref'.
-  $field_instances['node-bonsai_message_email-ogmk_categories_ref'] = array(
-    'bundle' => 'bonsai_message_email',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'taxonomy',
-        'settings' => array(),
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 25,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'ogmk_categories_ref',
-    'label' => 'Product Categories',
-    'required' => 0,
-    'settings' => array(
-      'entity_translation_sync' => FALSE,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
-      'type' => 'options_select',
-      'weight' => 24,
-    ),
-  );
-
-  // Exported field_instance: 'node-bonsai_message_email-ogmk_labels_ref'.
-  $field_instances['node-bonsai_message_email-ogmk_labels_ref'] = array(
-    'bundle' => 'bonsai_message_email',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'taxonomy',
-        'settings' => array(),
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 23,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'ogmk_labels_ref',
-    'label' => 'Product Labels',
-    'required' => 0,
-    'settings' => array(
-      'entity_translation_sync' => FALSE,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-        'autocomplete_path' => 'taxonomy/autocomplete',
-        'size' => 60,
-      ),
-      'type' => 'options_select',
-      'weight' => 25,
-    ),
-  );
-
   // Exported field_instance: 'user-user-bonsai_boolean'.
   $field_instances['user-user-bonsai_boolean'] = array(
     'bundle' => 'user',
@@ -1182,7 +1058,6 @@ function bonsai_field_default_field_instances() {
   // Translatables
   // Included for use with string extractors like potx.
   t('BCC');
-  t('Blog Labels');
   t('Body in HTML');
   t('Body in Plain Text');
   t('CC');
@@ -1196,8 +1071,6 @@ function bonsai_field_default_field_instances() {
   t('JSON');
   t('Message Labels');
   t('Newsletter');
-  t('Product Categories');
-  t('Product Labels');
   t('Subject');
   t('To');
 
