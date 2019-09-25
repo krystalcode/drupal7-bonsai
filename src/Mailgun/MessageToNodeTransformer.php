@@ -159,7 +159,7 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
       $node_wrapper->bonsai_text_long2->value = $message->{'body-html'};
     }
 
-    // Add labels - Inbox, Spam, Spoof.
+    // Add labels - Inbox, Spam, spoof.
     /**
      * @Issue(
      *   "Confirm that the current authenticity/spam validation is adequate"
@@ -182,7 +182,7 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
 
     // Does the email look spoofed?
     if (empty($message->{'X-Mailgun-Dkim-Check-Result'}) || $message->{'X-Mailgun-Dkim-Check-Result'} !== 'Pass') {
-      $labels[] = 'Spoof';
+      $labels[] = 'spoof';
     }
 
     // Is it spam?
