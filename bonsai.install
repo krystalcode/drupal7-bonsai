@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Update functions for the Bonsai module.
+ */
+
+/**
+ * Convert the Spoof label from upper to lower case.
+ */
+function bonsai_update_7001() {
+  $terms = _bonsai_taxonomy_term_multiple_by_name(array('Spoof'));
+  if (!$terms) {
+    return;
+  }
+
+  $term = current($terms);
+  $term->name = 'spoof';
+  taxonomy_term_save($term);
+}
