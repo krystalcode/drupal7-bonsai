@@ -659,6 +659,15 @@ function bonsai_rules_action_info() {
       'group' => t('Bonsai'),
       'base' => 'rules_action__bonsai_move_to_folder',
     ),
+    'bonsai_add_labels' => array(
+      'label' => t('Add labels to an email message'),
+      'parameter' => array(
+        'node' => array('type' => 'node', 'label' => t('The message to add labesl to')),
+        'folder' => array('type' => 'text', 'label' => t('A comma-separated list of labels')),
+      ),
+      'group' => t('Bonsai'),
+      'base' => 'rules_action__bonsai_add_labels',
+    ),
   );
 }
 
@@ -1193,6 +1202,32 @@ function rules_action__bonsai_move_to_folder($node, $folder) {
   _bonsai_message_add_folder($node, $folders[$folder]);
 }
 
+/**
+ * Callback for the rules action that adds labels to a bonsai message.
+ *
+ * @Issue(
+ *   "Validate that the given node is a bonsai message"
+ *   type="bug"
+ *   priority="normal"
+ * )
+ * @Issue(
+ *   "Log an error message if some of the labels do not exist"
+ *   type="bug"
+ *   priority="normal"
+ * )
+ * @Issue(
+ *   "Add a configuration option to create missing labels"
+ *   type="improvement"
+ *   priority="normal"
+ * )
+ */
+function rules_action__bonsai_add_labels($node, $labels) {
+  $labels = explode(',', $labels);
+  $labels = array_map('trim', $labels);
+
+  _bonsai_message_add_labels($node, $labels);
+}
+
 
 /**
  * Functions for internal use.
@@ -1528,6 +1563,10 @@ function _bonsai_taxonomy_term_all_by_vocabulary(array $options = array()) {
 
 function _bonsai_all_folders() {
   return _bonsai_taxonomy_term_all_by_vocabulary_and_case('upper');
+}
+
+function _bonsai_all_labels() {
+  return _bonsai_taxonomy_term_all_by_vocabulary_and_case('lower');
 }
 
 function _bonsai_taxonomy_term_all_by_vocabulary_and_case(
