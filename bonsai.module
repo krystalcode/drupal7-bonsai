@@ -255,6 +255,14 @@ function bonsai_action_info() {
       'vbo_configurable' => FALSE,
       'triggers' => array('any'),
     ),
+    'bonsai_add_labels' => array(
+      'type' => 'node',
+      'label' => t('Add labels to email messages'),
+      'behavior' => array('changes_property'),
+      'configurable' => TRUE,
+      'vbo_configurable' => FALSE,
+      'triggers' => array('any'),
+    ),
   );
 }
 
@@ -304,6 +312,65 @@ function bonsai_move_to_folder(&$node, $context) {
 
   $folder = taxonomy_term_load($context['tid']);
   _bonsai_message_add_folder($node, $folder);
+}
+
+/**
+ * Form provider for the `add_labels` action.
+ *
+ * Allows selecting one or more label that will be added to email messages.
+ */
+function bonsai_add_labels_form() {
+  $form = array();
+
+  $terms = _bonsai_all_labels();
+  $options = array_combine(
+    array_column($terms, 'tid'),
+    array_column($terms, 'name')
+  );
+  $form['label_ids'] = array(
+    '#type' => 'select',
+    '#title' => t('Labels to add'),
+    '#description' => t('Selected labels will be added to the email messages.'),
+    '#options' => $options,
+    '#multiple' => TRUE,
+  );
+
+  return $form;
+}
+
+/**
+ * Submit function for the `add_labels` action.
+ */
+function bonsai_add_labels_submit($form, &$form_state) {
+  return array(
+    'tids' => $form_state['values']['label_ids'],
+  );
+}
+
+/**
+ * Performs the `add_labels` action.
+ */
+function bonsai_add_labels(&$node, $context) {
+  if (!isset($node->bonsai_labels_ref)) {
+    return;
+  }
+
+  if (!isset($context['tids'])) {
+    return;
+  }
+
+  // Convert input (term IDs) to the form required by the
+  // `_bonsai_message_add_labels` function (term names).
+  // @Issue(
+  //   "Optimize the add labels function to accept term names or term IDs"
+  //   type="improvement"
+  //   priority="normal"
+  //   labels="performance"
+  // )
+  $labels = taxonomy_term_load_multiple($context['tids']);
+  $labels = array_column($labels, 'name');
+
+  _bonsai_message_add_labels($node, $labels);
 }
 
 /**
