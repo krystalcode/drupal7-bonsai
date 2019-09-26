@@ -142,6 +142,14 @@ function bonsai_permission() {
     'bonsai view messages source' => array(
       'title' => t('View the source of messages'),
     ),
+    'have the bonsai user role' => array(
+      'title' => t('Have the <em>bonsai user</em> role on the site'),
+      'description' => t('This permission should be assigned only to the corresponding role. It is meant to be used in cases where a role check is required, but a permission check is preferrable, such as when exporting Views access control via Features.'),
+    ),
+    'have the bonsai administrator role' => array(
+      'title' => t('Have the <em>bonsai administrator</em> role on the site'),
+      'description' => t('This permission should be assigned only to the corresponding role. It is meant to be used in cases where a role check is required, but a permission check is preferrable, such as when exporting Views access control via Features.'),
+    ),
   );
 
   return $permissions;
