@@ -54,3 +54,16 @@ function bonsai_update_7003() {
     node_type_delete($node_type_name);
   }
 }
+
+/**
+ * Update text format for current comments to use Message Plain HTML.
+ */
+function bonsai_update_7004() {
+  db_update('field_data_bonsai_text_long')
+    ->fields(array(
+      'bonsai_text_long_format' => 'bonsai_plain_html',
+    ))
+    ->condition('entity_type', 'comment')
+    ->condition('bonsai_text_long_format', 'ogmk_plain_html')
+    ->execute();
+}
