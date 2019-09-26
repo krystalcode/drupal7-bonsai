@@ -252,9 +252,6 @@ function bonsai_field_group_info() {
     'weight' => '31',
     'children' => array(
       0 => 'bonsai_labels_ref',
-      1 => 'ogmk_labels_ref',
-      2 => 'ogmk_blog_labels_ref',
-      3 => 'ogmk_categories_ref',
     ),
     'format_type' => 'bootstrap_grid_col',
     'format_settings' => array(

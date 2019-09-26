@@ -658,66 +658,6 @@ function bonsai_views_default_views() {
   );
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['type'] = 'select';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['vocabulary'] = 'bonsai_labels';
-  /* Filter criterion: Content: Product Categories (ogmk_categories_ref) */
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['id'] = 'ogmk_categories_ref_tid';
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['table'] = 'field_data_ogmk_categories_ref';
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['field'] = 'ogmk_categories_ref_tid';
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['group'] = 1;
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['expose']['operator_id'] = 'ogmk_categories_ref_tid_op';
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['expose']['label'] = 'Product Categories';
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['expose']['operator'] = 'ogmk_categories_ref_tid_op';
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['expose']['identifier'] = 'product-categories';
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['expose']['remember'] = TRUE;
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['expose']['multiple'] = TRUE;
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-  );
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['type'] = 'select';
-  $handler->display->display_options['filters']['ogmk_categories_ref_tid']['vocabulary'] = 'ogmk_categories';
-  /* Filter criterion: Content: Labels (ogmk_labels_ref) */
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['id'] = 'ogmk_labels_ref_tid';
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['table'] = 'field_data_ogmk_labels_ref';
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['field'] = 'ogmk_labels_ref_tid';
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['group'] = 1;
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['expose']['operator_id'] = 'ogmk_labels_ref_tid_op';
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['expose']['label'] = 'Product Labels';
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['expose']['operator'] = 'ogmk_labels_ref_tid_op';
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['expose']['identifier'] = 'product-labels';
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['expose']['remember'] = TRUE;
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['expose']['multiple'] = TRUE;
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-  );
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['type'] = 'select';
-  $handler->display->display_options['filters']['ogmk_labels_ref_tid']['vocabulary'] = 'ogmk_labels';
-  /* Filter criterion: Content: Labels (ogmk_blog_labels_ref) */
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['id'] = 'ogmk_blog_labels_ref_tid';
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['table'] = 'field_data_ogmk_blog_labels_ref';
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['field'] = 'ogmk_blog_labels_ref_tid';
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['group'] = 1;
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['expose']['operator_id'] = 'ogmk_blog_labels_ref_tid_op';
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['expose']['label'] = 'Blog Labels';
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['expose']['operator'] = 'ogmk_blog_labels_ref_tid_op';
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['expose']['identifier'] = 'blog-labels';
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['expose']['remember'] = TRUE;
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['expose']['multiple'] = TRUE;
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-  );
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['type'] = 'select';
-  $handler->display->display_options['filters']['ogmk_blog_labels_ref_tid']['vocabulary'] = 'ogmk_blog_labels';
-  $handler->display->display_options['path'] = 'bonsai/messages/email/labels';
-  $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Labels';
-  $handler->display->display_options['menu']['weight'] = '5';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   /* Display: Outbox */
   $handler = $view->new_display('page', 'Outbox', 'outbox');

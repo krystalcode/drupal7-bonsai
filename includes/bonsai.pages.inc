@@ -217,9 +217,6 @@ function _bonsai_messages_clone_page($existing_node) {
   $cloned_node_wrapper->bonsai_text_long        = $existing_node_wrapper->bonsai_text_long->value();
   $cloned_node_wrapper->bonsai_text_long2       = $existing_node_wrapper->bonsai_text_long2->value();
   $cloned_node_wrapper->bonsai_labels_ref       = $existing_node_wrapper->bonsai_labels_ref->value();
-  $cloned_node_wrapper->ogmk_categories_ref     = $existing_node_wrapper->ogmk_categories_ref->value();
-  $cloned_node_wrapper->ogmk_labels_ref         = $existing_node_wrapper->ogmk_labels_ref->value();
-  $cloned_node_wrapper->ogmk_blog_labels_ref    = $existing_node_wrapper->ogmk_blog_labels_ref->value();
   $cloned_node_wrapper->bonsai_message_email_ref= $existing_node_wrapper->bonsai_message_email_ref->value();
 
   // We are not copying the user reference and title fields since they will be
