@@ -737,7 +737,7 @@ function bonsai_rules_action_info() {
     'bonsai_add_labels' => array(
       'label' => t('Add labels to an email message'),
       'parameter' => array(
-        'node' => array('type' => 'node', 'label' => t('The message to add labesl to')),
+        'node' => array('type' => 'node', 'label' => t('The message to add labels to')),
         'folder' => array('type' => 'text', 'label' => t('A comma-separated list of labels')),
       ),
       'group' => t('Bonsai'),
