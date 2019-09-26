@@ -132,7 +132,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'bonsai_message_email' => 'bonsai_message_email',
   );
-  /* Filter criterion: Content: Message Labels (bonsai_labels_ref) */
+  /* Filter criterion: Content: Labels (bonsai_labels_ref) */
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['id'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['table'] = 'field_data_bonsai_labels_ref';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['field'] = 'bonsai_labels_ref_tid';
@@ -142,7 +142,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['value'] = $inbox_labels;
 
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator_id'] = 'bonsai_labels_ref_tid_op';
-  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Message Labels (bonsai_labels_ref)';
+  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Labels (bonsai_labels_ref)';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator'] = 'bonsai_labels_ref_tid_op';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['identifier'] = 'message-labesl';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['vocabulary'] = 'bonsai_labels';
@@ -212,7 +212,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'bonsai_message_email' => 'bonsai_message_email',
   );
-  /* Filter criterion: Content: Message Labels (bonsai_labels_ref) */
+  /* Filter criterion: Content: Labels (bonsai_labels_ref) */
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['id'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['table'] = 'field_data_bonsai_labels_ref';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['field'] = 'bonsai_labels_ref_tid';
@@ -222,7 +222,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['value'] = $archive_labels;
 
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator_id'] = 'bonsai_labels_ref_tid_op';
-  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Message Labels (bonsai_labels_ref)';
+  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Labels (bonsai_labels_ref)';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator'] = 'bonsai_labels_ref_tid_op';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['identifier'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['remember_roles'] = array(
@@ -454,7 +454,7 @@ function bonsai_views_default_views() {
     'bonsai_message_email' => 'bonsai_message_email',
   );
   $handler->display->display_options['filters']['type']['group'] = 1;
-  /* Filter criterion: Content: Message Labels (bonsai_labels_ref) */
+  /* Filter criterion: Content: Labels (bonsai_labels_ref) */
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['id'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['table'] = 'field_data_bonsai_labels_ref';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['field'] = 'bonsai_labels_ref_tid';
@@ -465,7 +465,7 @@ function bonsai_views_default_views() {
 
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['group'] = 1;
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator_id'] = 'bonsai_labels_ref_tid_op';
-  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Message Labels (bonsai_labels_ref)';
+  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Labels (bonsai_labels_ref)';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator'] = 'bonsai_labels_ref_tid_op';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['identifier'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['remember_roles'] = array(
@@ -535,7 +535,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'bonsai_message_email' => 'bonsai_message_email',
   );
-  /* Filter criterion: Content: Message Labels (bonsai_labels_ref) */
+  /* Filter criterion: Content: Labels (bonsai_labels_ref) */
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['id'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['table'] = 'field_data_bonsai_labels_ref';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['field'] = 'bonsai_labels_ref_tid';
@@ -545,7 +545,7 @@ function bonsai_views_default_views() {
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['value'] = $spam_labels;
 
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator_id'] = 'bonsai_labels_ref_tid_op';
-  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Message Labels (bonsai_labels_ref)';
+  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Labels (bonsai_labels_ref)';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator'] = 'bonsai_labels_ref_tid_op';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['identifier'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['vocabulary'] = 'bonsai_labels';
@@ -640,14 +640,14 @@ function bonsai_views_default_views() {
     2 => '2',
     1 => 0,
   );
-  /* Filter criterion: Content: Message Labels (bonsai_labels_ref) */
+  /* Filter criterion: Content: Labels (bonsai_labels_ref) */
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['id'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['table'] = 'field_data_bonsai_labels_ref';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['field'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['group'] = 1;
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['exposed'] = TRUE;
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator_id'] = 'bonsai_labels_ref_tid_op';
-  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Message Labels';
+  $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['label'] = 'Labels';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['operator'] = 'bonsai_labels_ref_tid_op';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['identifier'] = 'bonsai_labels_ref_tid';
   $handler->display->display_options['filters']['bonsai_labels_ref_tid']['expose']['remember'] = TRUE;
@@ -850,7 +850,7 @@ function bonsai_views_default_views() {
     t('Date'),
     t('Actions'),
     t('[edit_node_button]'),
-    t('Message Labels (bonsai_labels_ref)'),
+    t('Labels (bonsai_labels_ref)'),
     t('Inbox'),
     t('Archive'),
     t('<div class="alert alert-warning"><span class="fa fa-exclamation"></span> There are no messages in the Archive folder at the moment.</div>'),
@@ -863,7 +863,7 @@ function bonsai_views_default_views() {
     t('<div class="alert alert-warning"><span class="fa fa-exclamation"></span> There are no messages in the Spam folder at the moment.</div>'),
     t('Labels'),
     t('<div class="alert alert-warning"><span class="fa fa-exclamation"></span> There are no messages with the selected labels at the moment.</div>'),
-    t('Message Labels'),
+    t('Labels'),
     t('Product Categories'),
     t('Product Labels'),
     t('Blog Labels'),

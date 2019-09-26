@@ -1045,7 +1045,7 @@ function bonsai_field_default_field_instances() {
   t('Image Attachments');
   t('In Reply To');
   t('JSON');
-  t('Message Labels');
+  t('Labels');
   t('Newsletter');
   t('Subject');
   t('To');
