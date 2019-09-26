@@ -34,22 +34,18 @@ function bonsai_field_default_field_instances() {
     'settings' => array(
       'better_formats' => array(
         'allowed_formats' => array(
-          'ogmk_basic_html' => 0,
-          'ogmk_html' => 0,
-          'ogmk_plain_html' => 'ogmk_plain_html',
+          'bonsai_html' => 0,
+          'bonsai_plain_html' => 'bonsai_plain_html',
           'plain_text' => 0,
         ),
         'allowed_formats_toggle' => 1,
         'default_order_toggle' => 0,
         'default_order_wrapper' => array(
           'formats' => array(
-            'ogmk_basic_html' => array(
+            'bonsai_html' => array(
               'weight' => 0,
             ),
-            'ogmk_html' => array(
-              'weight' => 0,
-            ),
-            'ogmk_plain_html' => array(
+            'bonsai_plain_html' => array(
               'weight' => 0,
             ),
             'plain_text' => array(
@@ -142,22 +138,18 @@ function bonsai_field_default_field_instances() {
     'settings' => array(
       'better_formats' => array(
         'allowed_formats' => array(
-          'ogmk_basic_html' => 'ogmk_basic_html',
-          'ogmk_html' => 'ogmk_html',
-          'ogmk_plain_html' => 'ogmk_plain_html',
+          'bonsai_html' => 0,
+          'bonsai_plain_html' => 'bonsai_plain_html',
           'plain_text' => 'plain_text',
         ),
         'allowed_formats_toggle' => 0,
         'default_order_toggle' => 0,
         'default_order_wrapper' => array(
           'formats' => array(
-            'ogmk_basic_html' => array(
+            'bonsai_html' => array(
               'weight' => 0,
             ),
-            'ogmk_html' => array(
-              'weight' => 0,
-            ),
-            'ogmk_plain_html' => array(
+            'bonsai_plain_html' => array(
               'weight' => 0,
             ),
             'plain_text' => array(
@@ -208,22 +200,18 @@ function bonsai_field_default_field_instances() {
     'settings' => array(
       'better_formats' => array(
         'allowed_formats' => array(
-          'ogmk_basic_html' => 'ogmk_basic_html',
-          'ogmk_html' => 'ogmk_html',
-          'ogmk_plain_html' => 'ogmk_plain_html',
+          'bonsai_html' => 0,
+          'bonsai_plain_html' => 'bonsai_plain_html',
           'plain_text' => 'plain_text',
         ),
         'allowed_formats_toggle' => 0,
         'default_order_toggle' => 0,
         'default_order_wrapper' => array(
           'formats' => array(
-            'ogmk_basic_html' => array(
+            'bonsai_html' => array(
               'weight' => 0,
             ),
-            'ogmk_html' => array(
-              'weight' => 0,
-            ),
-            'ogmk_plain_html' => array(
+            'bonsai_plain_html' => array(
               'weight' => 0,
             ),
             'plain_text' => array(
@@ -638,22 +626,18 @@ function bonsai_field_default_field_instances() {
     'settings' => array(
       'better_formats' => array(
         'allowed_formats' => array(
-          'ogmk_basic_html' => 'ogmk_basic_html',
-          'ogmk_html' => 'ogmk_html',
-          'ogmk_plain_html' => 'ogmk_plain_html',
+          'bonsai_html' => 0,
+          'bonsai_plain_html' => 'bonsai_plain_html',
           'plain_text' => 'plain_text',
         ),
         'allowed_formats_toggle' => 0,
         'default_order_toggle' => 0,
         'default_order_wrapper' => array(
           'formats' => array(
-            'ogmk_basic_html' => array(
+            'bonsai_html' => array(
               'weight' => 0,
             ),
-            'ogmk_html' => array(
-              'weight' => 0,
-            ),
-            'ogmk_plain_html' => array(
+            'bonsai_plain_html' => array(
               'weight' => 0,
             ),
             'plain_text' => array(
@@ -706,9 +690,7 @@ function bonsai_field_default_field_instances() {
       'better_formats' => array(
         'allowed_formats' => array(
           'bonsai_html' => 'bonsai_html',
-          'ogmk_basic_html' => 'ogmk_basic_html',
-          'ogmk_html' => 0,
-          'ogmk_plain_html' => 'ogmk_plain_html',
+          'bonsai_plain_html' => 'bonsai_plain_html',
           'plain_text' => 0,
         ),
         'allowed_formats_toggle' => 1,
@@ -718,13 +700,7 @@ function bonsai_field_default_field_instances() {
             'bonsai_html' => array(
               'weight' => 0,
             ),
-            'ogmk_basic_html' => array(
-              'weight' => 0,
-            ),
-            'ogmk_html' => array(
-              'weight' => 0,
-            ),
-            'ogmk_plain_html' => array(
+            'bonsai_plain_html' => array(
               'weight' => 0,
             ),
             'plain_text' => array(
