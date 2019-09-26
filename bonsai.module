@@ -743,6 +743,14 @@ function bonsai_rules_action_info() {
       'group' => t('Bonsai'),
       'base' => 'rules_action__bonsai_add_labels',
     ),
+    'bonsai_add_attachments' => array(
+      'label' => t('Add all attachments to an incoming email message'),
+      'parameter' => array(
+        'node' => array('type' => 'node', 'label' => t('The message to add the attachments to')),
+      ),
+      'group' => t('Bonsai'),
+      'base' => 'rules_action__bonsai_add_attachments',
+    ),
   );
 }
 
@@ -1313,6 +1321,56 @@ function rules_action__bonsai_add_labels($node, $labels) {
   _bonsai_message_add_labels($node, $labels);
 }
 
+/**
+ * Callback for the rules action that adds attachments to a bonsai message.
+ *
+ * @Issue(
+ *   "Validate that the given node is a bonsai message"
+ *   type="bug"
+ *   priority="normal"
+ * )
+ * @Issue(
+ *   "Properly detect whether files have already been attached"
+ *   type="bug"
+ *   priority="normal"
+ * )
+ * @Issue(
+ *   "Rule configuration option to bypass file type validation"
+ *   type="improvement"
+ *   priority="normal"
+ * )
+ * @Issue(
+ *   "Rule configuration option to choose which file types to attach"
+ *   type="improvement"
+ *   priority="normal"
+ * )
+ */
+function rules_action__bonsai_add_attachments($node) {
+  $node_wrapper = entity_metadata_wrapper('node', $node);
+
+  // Only applies to incoming emails.
+  if (!_bonsai_message_email_is_incoming($node)) {
+    return;
+  }
+
+  // Do not proceed if the email seems to already have attachments added.
+  $files = $node_wrapper->bonsai_files->value();
+  $images = $node_wrapper->bonsai_images->value();
+  if ($files || $images) {
+    return;
+  }
+
+  $message = json_decode($node_wrapper->bonsai_json->value());
+  if (empty($message->attachments)) {
+    return;
+  }
+
+  // Get all the details of the attachment.
+  foreach ($message->attachments as $message_attachment) {
+    _bonsai_node_add_attachment($message_attachment, $node_wrapper);
+  }
+}
+
 
 /**
  * Functions for internal use.
@@ -1395,6 +1453,31 @@ function _bonsai_email_get_domain($email) {
 
 function _bonsai_label_is_folder($label) {
   return (bool) preg_match("/[A-Z]/", substr($label->name, 0, 1));
+}
+
+function _bonsai_message_email_is_incoming($node) {
+  // All incoming emails are owned by the root user. Sent emails should always
+  // be created by other users.
+  if ($node->uid != 1) {
+    return FALSE;
+  }
+
+  // All incoming emails are published.
+  if (!$node->status) {
+    return FALSE;
+  }
+
+  // All non-incoming (Sent) emails are in the Sent folder and they should not
+  // be moved; incoming should never be.
+  $folders = _bonsai_message_get_folders($node);
+  // Should only have one folder but let's go through the array anyway.
+  foreach ($folders as $folder) {
+    if ($folder->name === 'Sent') {
+      return FALSE;
+    }
+  }
+
+  return TRUE;
 }
 
 function _bonsai_message_get_folders($node) {
