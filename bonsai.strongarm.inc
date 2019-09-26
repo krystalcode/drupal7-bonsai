@@ -72,9 +72,6 @@ function bonsai_strongarm() {
       'diff_standard' => array(
         'custom_settings' => FALSE,
       ),
-      'ogmk_bootstrap_media' => array(
-        'custom_settings' => FALSE,
-      ),
       'token' => array(
         'custom_settings' => FALSE,
       ),
@@ -112,12 +109,6 @@ function bonsai_strongarm() {
         'custom_settings' => FALSE,
       ),
       'diff_standard' => array(
-        'custom_settings' => FALSE,
-      ),
-      'ogmk_bootstrap_media' => array(
-        'custom_settings' => FALSE,
-      ),
-      'ogmk_manage_teaser' => array(
         'custom_settings' => FALSE,
       ),
       'token' => array(
