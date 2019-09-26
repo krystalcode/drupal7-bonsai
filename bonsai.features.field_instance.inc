@@ -529,7 +529,7 @@ function bonsai_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'bonsai_labels_ref',
-    'label' => 'Message Labels',
+    'label' => 'Labels',
     'required' => 0,
     'settings' => array(
       'entity_translation_sync' => FALSE,
