@@ -301,6 +301,28 @@ function bonsai_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
+  // Exported field_base: 'bonsai_remote_id'.
+  $field_bases['bonsai_remote_id'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'bonsai_remote_id',
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'max_length' => 998,
+    ),
+    'translatable' => 0,
+    'type' => 'text',
+  );
+
   // Exported field_base: 'bonsai_text_long'.
   $field_bases['bonsai_text_long'] = array(
     'active' => 1,
