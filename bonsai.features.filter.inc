@@ -21,7 +21,7 @@ function bonsai_filter_default_formats() {
     'filters' => array(),
   );
 
-  // Exported format: Email Plain HTML.
+  // Exported format: Message Plain HTML.
   $formats['bonsai_plain_html'] = array(
     'format' => 'bonsai_plain_html',
     'name' => 'Message Plain HTML',
