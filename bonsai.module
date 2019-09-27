@@ -1330,11 +1330,6 @@ function rules_action__bonsai_add_labels($node, $labels) {
  *   priority="normal"
  * )
  * @Issue(
- *   "Properly detect whether files have already been attached"
- *   type="bug"
- *   priority="normal"
- * )
- * @Issue(
  *   "Rule configuration option to bypass file type validation"
  *   type="improvement"
  *   priority="normal"
@@ -1365,7 +1360,7 @@ function rules_action__bonsai_add_attachments($node) {
     return;
   }
 
-  // Get all the details of the attachment.
+  // Add the attachments. Attachments already attached will not be added again.
   foreach ($message->attachments as $message_attachment) {
     _bonsai_node_add_attachment($message_attachment, $node_wrapper);
   }
@@ -1839,6 +1834,20 @@ function _bonsai_node_add_attachment($attachment, $node_wrapper) {
     $field_name = 'bonsai_files';
   }
 
+  // Check whether the file has already been attached using the remote
+  // ID. Nothing to do if so.
+  $files = $node_wrapper->{$field_name}->value();
+  foreach ($files as $existing_file) {
+    $existing_file_wrapper = entity_metadata_wrapper('file', (object) $existing_file);
+    $remote_id = $existing_file_wrapper->bonsai_remote_id->value();
+    if (!$remote_id) {
+      continue;
+    }
+    if ($remote_id === $attachment->url) {
+      return;
+    }
+  }
+
   // Get the field settings for determining the full storage path where the file
   // will be stored.
   $instance_info  = field_info_instance('node', $field_name, $node_wrapper->type->value());
@@ -1907,6 +1916,10 @@ function _bonsai_node_add_attachment($attachment, $node_wrapper) {
   // be permanent so it won't be deleted during cron.
   $file->status = 1;
 
+  // Store the attachment's URL as the file's remote ID.
+  $file_wrapper = entity_metadata_wrapper('file', $file);
+  $file_wrapper->bonsai_remote_id = $attachment->url;
+
   // Do validation before saving the file, according to settings defined in the
   // field instance.
   $validators = array(
@@ -1948,7 +1961,7 @@ function _bonsai_node_add_attachment($attachment, $node_wrapper) {
       $file->display = 1;
     }
   }
-  $files = $node_wrapper->{$field_name}->value();
+
   if ($files) {
     $files[] = (array) $file;
   }
