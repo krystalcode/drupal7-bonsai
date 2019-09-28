@@ -1580,7 +1580,17 @@ function _bonsai_full_format_to_email($email) {
     return $email;
   }
 
-  return substr($email, $email_start+1, -1);
+  return substr($email, $email_start + 1, -1);
+}
+
+function _bonsai_full_format_to_name($email) {
+  $email_start = strpos($email, '<');
+
+  if ($email_start === FALSE || substr($email, -1) !== '>') {
+    return;
+  }
+
+  return substr($email, 0, $email_start);
 }
 
 function _bonsai_uids_by_emails(array $emails) {
