@@ -1526,7 +1526,20 @@ function _bonsai_message_add_folder($node, $folder) {
   //   labels="performance"
   // )
   foreach ($current_terms as $term) {
-    if (!_bonsai_label_is_folder($term)) {
+    $term_is_folder = _bonsai_label_is_folder($term);
+
+    // Emails are not allowed to be moved away from the Sent folder.
+    // @Issue(
+    //   "Prevent from moving Sent emails to another folder on Edit form"
+    //   type="bug"
+    //   priority="normal"
+    //   labels="logic"
+    // )
+    if ($term_is_folder && $term->name === 'Sent') {
+      return;
+    }
+
+    if (!$term_is_folder) {
       $labels[] = $term;
     }
   }
