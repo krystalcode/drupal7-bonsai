@@ -1593,6 +1593,17 @@ function _bonsai_full_format_to_name($email) {
   return substr($email, 0, $email_start);
 }
 
+function _bonsai_full_format_to_domain($email) {
+  $email = _bonsai_full_format_to_email($email);
+  $email_parts = explode('@', $email);
+
+  if (count($email_parts) !== 2) {
+    return;
+  }
+
+  return $email_parts[1];
+}
+
 function _bonsai_uids_by_emails(array $emails) {
   if (empty($emails)) {
     return array();
