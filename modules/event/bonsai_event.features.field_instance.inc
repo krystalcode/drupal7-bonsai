@@ -315,13 +315,11 @@ function bonsai_event_field_default_field_instances() {
       ),
       'teaser' => array(
         'label' => 'hidden',
-        'module' => 'bonsai',
+        'module' => 'entityreference',
         'settings' => array(
-          'field' => '',
-          'mode' => 'mailto',
-          'no_access_skip' => TRUE,
+          'link' => 1,
         ),
-        'type' => 'bonsai_entity_email',
+        'type' => 'entityreference_label',
         'weight' => 0,
       ),
     ),
