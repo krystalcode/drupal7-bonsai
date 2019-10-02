@@ -52,3 +52,4 @@ features[variable][] = menu_parent_bonsai_message_event
 features[variable][] = node_options_bonsai_message_event
 features[variable][] = node_preview_bonsai_message_event
 features[variable][] = node_submitted_bonsai_message_event
+features[variable][] = pathauto_node_bonsai_message_event_pattern
