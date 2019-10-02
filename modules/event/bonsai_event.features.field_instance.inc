@@ -81,13 +81,13 @@ function bonsai_event_field_default_field_instances() {
         'module' => 'email',
         'settings' => array(),
         'type' => 'email_default',
-        'weight' => 5,
+        'weight' => 6,
       ),
       'teaser' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 5,
       ),
     ),
     'entity_type' => 'node',
@@ -110,6 +110,47 @@ function bonsai_event_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance:
+  // 'node-bonsai_message_event-bonsai_event_failed_status'.
+  $field_instances['node-bonsai_message_event-bonsai_event_failed_status'] = array(
+    'bundle' => 'bonsai_message_event',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 4,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 3,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'bonsai_event_failed_status',
+    'label' => 'Failed status',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 14,
+    ),
+  );
+
   // Exported field_instance: 'node-bonsai_message_event-bonsai_event_id'.
   $field_instances['node-bonsai_message_event-bonsai_event_id'] = array(
     'bundle' => 'bonsai_message_event',
@@ -122,13 +163,13 @@ function bonsai_event_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 0,
+        'weight' => 1,
       ),
       'teaser' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 6,
       ),
     ),
     'entity_type' => 'node',
@@ -181,60 +222,22 @@ function bonsai_event_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
+        'module' => 'list',
         'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 22,
+        'type' => 'list_default',
+        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 4,
       ),
     ),
     'entity_type' => 'node',
     'field_name' => 'bonsai_event_type',
     'label' => 'Type',
-    'required' => 0,
-    'settings' => array(
-      'entity_translation_sync' => FALSE,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
-      'type' => 'options_select',
-      'weight' => 14,
-    ),
-  );
-
-  // Exported field_instance: 'node-bonsai_message_event-bonsai_event_failed_status'.
-  $field_instances['node-bonsai_message_event-bonsai_event_failed_status'] = array(
-    'bundle' => 'bonsai_message_event',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 22,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'bonsai_event_failed_status',
-    'label' => 'Failed status',
     'required' => 0,
     'settings' => array(
       'entity_translation_sync' => FALSE,
@@ -259,17 +262,18 @@ function bonsai_event_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'jsonb',
         'settings' => array(),
         'type' => 'jsonb_text',
-        'weight' => 3,
+        'weight' => 7,
       ),
       'teaser' => array(
-        'label' => 'above',
+        'label' => 'hidden',
+        'module' => 'jsonb',
         'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
+        'type' => 'jsonb_text',
+        'weight' => 1,
       ),
     ),
     'entity_type' => 'node',
@@ -307,12 +311,17 @@ function bonsai_event_field_default_field_instances() {
           'link' => 1,
         ),
         'type' => 'entityreference_label',
-        'weight' => 2,
+        'weight' => 5,
       ),
       'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
+        'label' => 'hidden',
+        'module' => 'bonsai',
+        'settings' => array(
+          'field' => '',
+          'mode' => 'mailto',
+          'no_access_skip' => TRUE,
+        ),
+        'type' => 'bonsai_entity_email',
         'weight' => 0,
       ),
     ),
@@ -360,13 +369,18 @@ function bonsai_event_field_default_field_instances() {
           'show_remaining_days' => FALSE,
         ),
         'type' => 'date_default',
-        'weight' => 1,
+        'weight' => 2,
       ),
       'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
+        'label' => 'hidden',
+        'module' => 'date',
+        'settings' => array(
+          'interval' => 2,
+          'interval_display' => 'time ago',
+          'use_end_date' => FALSE,
+        ),
+        'type' => 'format_interval',
+        'weight' => 2,
       ),
     ),
     'entity_type' => 'node',
