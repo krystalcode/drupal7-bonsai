@@ -81,7 +81,20 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     }
 
     // Get the recipients' emails.
-    $recipients = explode(',', $message->{'To'});
+    $recipients = array();
+    // The message may not have the To property if it is sent to undisclosed
+    // recipients.
+    /**
+     * @Issue(
+     *   "Save the 'recipients' property for messages with undisclosed
+     *   recipients, possibly on a separate field"
+     *   type="improvements"
+     *   priority="low"
+     * )
+     */
+    if (isset($message->{'To'})) {
+      $recipients = explode(',', $message->{'To'});
+    }
     $recipients = array_map('trim', $recipients);
 
     // The title fiels is mandatory for nodes. If the email does not have a
