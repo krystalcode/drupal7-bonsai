@@ -1981,6 +1981,27 @@ function _bonsai_node_add_attachment($attachment, $node_wrapper) {
   // be permanent so it won't be deleted during cron.
   $file->status = 1;
 
+  // Determine the file type; if a file type is not set then it will be
+  // undefined and the file will not have the bonsai_remote_id field.
+  /**
+   * @Issue(
+   *   "Handle cases when trying to attach a file of undetected type"
+   *   type="bug"
+   *   priority="low"
+   * )
+   * @Issue(
+   *   "Address issue with ; in filemime in a file_entity issue"
+   *   type="bug"
+   *   priority="low"
+   * )
+   */
+  foreach (file_type_get_enabled_types() as $type) {
+    if (file_entity_match_mimetypes($type->mimetypes, explode(';', $file->filemime)[0])) {
+      $file->type = $type->type;
+      break;
+    }
+  }
+
   // Store the attachment's URL as the file's remote ID.
   $file_wrapper = entity_metadata_wrapper('file', $file);
   $file_wrapper->bonsai_remote_id = $attachment->url;
