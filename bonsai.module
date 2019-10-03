@@ -1854,7 +1854,6 @@ function _bonsai_node_has_unsaved_attachments($node) {
 
   $message = json_decode($node_wrapper->bonsai_json->value());
   if (empty($message->attachments)) {
-    dpm('no attachments');
     return FALSE;
   }
 
