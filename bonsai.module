@@ -1864,7 +1864,10 @@ function _bonsai_node_has_unsaved_attachments($node) {
   }
 
   $file_attachment_ids = array();
-  $files = $node_wrapper->{$field_name}->value();
+  $files = array_merge(
+    $node_wrapper->bonsai_files->value(),
+    $node_wrapper->bonsai_images->value()
+  );
   foreach ($files as $existing_file) {
     $existing_file_wrapper = entity_metadata_wrapper('file', (object) $existing_file);
     $remote_id = $existing_file_wrapper->bonsai_remote_id->value();
