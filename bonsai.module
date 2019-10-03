@@ -1849,6 +1849,35 @@ function _bonsai_taxonomy_term_all_by_vocabulary_and_case(
   return taxonomy_term_load_multiple($tids);
 }
 
+function _bonsai_node_has_unsaved_attachments($node) {
+  $node_wrapper = _bonsai_ensure_node_wrapper($node);
+
+  $message = json_decode($node_wrapper->bonsai_json->value());
+  if (empty($message->attachments)) {
+    dpm('no attachments');
+    return FALSE;
+  }
+
+  $message_attachment_ids = array();
+  // Get all the details of the attachment.
+  foreach ($message->attachments as $message_attachment) {
+    $message_attachment_ids[] = $message_attachment->url;
+  }
+
+  $file_attachment_ids = array();
+  $files = $node_wrapper->{$field_name}->value();
+  foreach ($files as $existing_file) {
+    $existing_file_wrapper = entity_metadata_wrapper('file', (object) $existing_file);
+    $remote_id = $existing_file_wrapper->bonsai_remote_id->value();
+
+    if ($remote_id) {
+      $file_attachment_ids[] = $remote_id;
+    }
+  }
+
+  return array_diff($message_attachment_ids, $file_attachment_ids) ? TRUE : FALSE;
+}
+
 function _bonsai_node_add_attachment($attachment, $node_wrapper) {
   // We will be using the entity wrapper for manipulating fields. If we are
   // given the node id or the node object, wrap it in an entity wrapper.
