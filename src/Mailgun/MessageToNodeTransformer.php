@@ -18,6 +18,23 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
   }
 
   private function createNode($message) {
+    try {
+      return $this->doCreateNode($message);
+    }
+    catch (\Exception $e) {
+      $exception_class = get_class($e);
+      throw new $exception_class(
+        sprintf(
+          'An exception was thrown while transforming the incoming message with ID "%s" to a node. The full message is "%s" and the exception message is "%s"',
+          _bonsai_email_trim_email_id($message->{'Message-Id'}),
+          json_encode($message),
+          $e->getMessage()
+        )
+      );
+    }
+  }
+
+  private function doCreateNode($message) {
     // Create a node for storing the message.
     $node = entity_create('node', array('type' => 'bonsai_message_email'));
 
@@ -217,6 +234,24 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
   }
 
   private function updateNode($message, $node_wrapper) {
+    try {
+      return $this->doUpdateNode($message, $node_wrapper);
+    }
+    catch (\Exception $e) {
+      $exception_class = get_class($e);
+      throw new $exception_class(
+        sprintf(
+          'An exception was thrown while updating the node with ID "%s" with the message with ID "%s". The full message is "%s" and the exception message is "%s"',
+          $node_wrapper->getIdentifier(),
+          _bonsai_email_trim_email_id($message->{'Message-Id'}),
+          json_encode($message),
+          $e->getMessage()
+        )
+      );
+    }
+  }
+
+  private function doUpdateNode($message, $node_wrapper) {
     $node_wrapper = _bonsai_ensure_node_wrapper($node_wrapper);
 
     // We want to ensure that we are storing the email details on a node that is
