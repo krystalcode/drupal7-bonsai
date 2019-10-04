@@ -111,8 +111,8 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
      */
     if (isset($message->{'To'})) {
       $recipients = explode(',', $message->{'To'});
+      $recipients = array_map('trim', $recipients);
     }
-    $recipients = array_map('trim', $recipients);
 
     // The title fiels is mandatory for nodes. If the email does not have a
     // subject, we store a placeholder field.
@@ -138,9 +138,14 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     // Mandatory fields.
     $node_wrapper->bonsai_email_id  = _bonsai_email_trim_email_id($message->{'Message-Id'});
     $node_wrapper->bonsai_email     = $message->{'From'};
-    $node_wrapper->bonsai_emails    = $recipients;
     $node_wrapper->bonsai_json      = json_encode($message);
     $node_wrapper->bonsai_timestamp = $time;
+
+    // The To field is normally mandatory, but it can be empty for emails sent
+    // to undisclosed recipients.
+    if ($recipients) {
+      $node_wrapper->bonsai_emails = $recipients;
+    }
 
     /**
      * @Issue(
