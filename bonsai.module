@@ -570,15 +570,18 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
 
   // We'll try to guess the mostly likely email that the user will be
   // sending from, as the first recipient email of the node we're replying
-  // to that belongs to the bonsai domain.
-  // The email could have been sent to many emails of that domain. We'll
+  // to that belongs to one of the bonsai domains.
+  // The email could have been sent to many emails of bonsai domains. We'll
   // pick the first one. If there is no domain in the recipients, we'll
   // check the CC recipients as well.
-  $domain   = variable_get('bonsai_domain');
+  $domains = array_keys(variable_get('bonsai_domains'));
+  if (!$domains) {
+    $domains = array(variable_get('bonsai_domain'));
+  }
   $language = $form['bonsai_email']['#language'];
   $from     = &$form['bonsai_email'][$language][0]['email']['#default_value'];
   foreach ($reply_to_recipients as $index => $recipient) {
-    if (_bonsai_email_get_domain($recipient) === $domain) {
+    if (in_array(_bonsai_email_get_domain($recipient), $domains)) {
       $from = $recipient;
       // We're unsetting the item. Since we're putting it into the 'from'
       // field, we don't want it left in te recipients to reply to as well.
@@ -588,7 +591,7 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
   }
   if (!$from && $reply_to_cc_recipients) {
     foreach ($reply_to_cc_recipients as $index => $cc_recipient) {
-      if (_bonsai_email_get_domain($cc_recipient) === $domain) {
+      if (in_array(_bonsai_email_get_domain($cc_recipient), $domains)) {
         $from = $cc_recipient;
         // We're unsetting the item if found within the CC recipients, for
         // the same reason we did so in the To recipients.
