@@ -135,6 +135,9 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     // handling.
     $node_wrapper = entity_metadata_wrapper('node', $node);
 
+    // Add the raw data, if available.
+    $this->updateBonsaiData($message, $node_wrapper);
+
     // Mandatory fields.
     $node_wrapper->bonsai_email_id  = _bonsai_email_trim_email_id($message->{'Message-Id'});
     $node_wrapper->bonsai_email     = $message->{'From'};
@@ -283,6 +286,9 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
      */
     $node_wrapper->bonsai_json = json_encode($message);
 
+    // Add the raw data, if available.
+    $this->updateBonsaiData($message, $node_wrapper);
+
     // We're only sending HTML body, but Mailgun creates a plain text version of
     // it before sending it. Add this to the corresponding field as well.
     $node_wrapper->bonsai_text_long = $message->{'body-plain'};
@@ -298,5 +304,25 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     $node_wrapper->status = 1;
 
     return $node_wrapper;
+  }
+
+  protected function updateBonsaiData(\stdClass $message, $node_wrapper) {
+    if (empty($message->bonsai)) {
+      return;
+    }
+
+    // Store the raw MIME message data, if available.
+    // Strangely, this sometimes arrives here as an array (create node) and
+    // sometimes as an `stdClass` (update node);
+    $raw_data = NULL;
+    if (is_array($message->bonsai) && !empty($message->bonsai['raw'])) {
+      $raw_data = $message->bonsai['raw'];
+    }
+    if (is_object($message->bonsai) && !empty($message->bonsai->raw)) {
+      $raw_data = $message->bonsai->raw;
+    }
+    $node_wrapper->bonsai_json2 = $raw_data;
+
+    unset($message->bonsai);
   }
 }

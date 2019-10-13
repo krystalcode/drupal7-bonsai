@@ -794,6 +794,15 @@ function _bonsai_cron__bonsai_messages_incoming($domain = NULL, $api_key = NULL)
        * )
        */
       'limit'  => variable_get('bonsai_cron_messages_limit', 100),
+      /**
+       * @Issue(
+       *   "Allow configuring whether to fetch the raw MIME message as well"
+       *   type="improvement"
+       *   priority="low"
+       *   labels="administration, configuration"
+       * )
+       */
+      'include_raw' => TRUE,
     )
   );
 
@@ -851,9 +860,10 @@ function _bonsai_cron__bonsai_messages_delivered($domain = NULL, $api_key = NULL
 
   $messages   = $repository->getList(
     array(
-      'domain'     => $domain,
-      'event_type' => 'delivered',
-      'limit'      => variable_get('bonsai_cron_messages_limit', 100),
+      'domain'      => $domain,
+      'event_type'  => 'delivered',
+      'limit'       => variable_get('bonsai_cron_messages_limit', 100),
+      'include_raw' => TRUE,
     )
   );
 
