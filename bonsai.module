@@ -1404,6 +1404,74 @@ function _bonsai_ensure_node_wrapper($node_wrapper) {
   return $node_wrapper;
 }
 
+function _bonsai_message__mailgun_url__get_client($url) {
+  list(
+    $protocol,
+    $nothing,
+    $api_host,
+    $api_version,
+    $endpoint_url
+  ) = _bonsai_message__mailgun_url__get_parts($url);
+
+  $domain = NULL;
+  $api_key = NULL;
+
+  preg_match('/.*\/domains\/([^\/]+)\/.*/', $url, $matches);
+  if (empty($matches[1])) {
+    return;
+  }
+
+  $domain = $matches[1];
+
+  $domains = variable_get('bonsai_domains');
+  if ($domains && isset($domains[$domain])) {
+    $api_key = $domains[$domain];
+  }
+
+  if (!$domains && $domain === variable_get('bonsai_domain')) {
+    $api_key = $domain;
+  }
+
+  if (!$api_key) {
+    return;
+  }
+
+  $mailgun = new Mailgun($domains[$domain], null, $api_host);
+  $mailgun->setApiVersion($api_version);
+
+  return $mailgun;
+}
+
+function _bonsai_message__mailgun_url__get_endpoint_url($url) {
+  list(
+    $protocol,
+    $nothing,
+    $api_host,
+    $api_version,
+    $endpoint_url
+  ) = _bonsai_message__mailgun_url__get_parts($url);
+
+  return $endpoint_url;
+}
+
+function _bonsai_message__mailgun_url__get_parts($url) {
+  $url_parts = explode('/', $url);
+
+  $protocol     = array_shift($url_parts);
+  $nothing      = array_shift($url_parts);
+  $api_host     = array_shift($url_parts);
+  $api_version  = array_shift($url_parts);
+  $endpoint_url = implode('/', $url_parts);
+
+  return array(
+    $protocol,
+    $nothing,
+    $api_host,
+    $api_version,
+    $endpoint_url
+  );
+}
+
 function _bonsai_email_message_exists($node_wrapper, $access_bypass = FALSE) {
   $email_id = $node_wrapper->bonsai_email_id->value();
   return _bonsai_message_node_id_by_email_id($email_id, $access_bypass);
@@ -1949,9 +2017,36 @@ function _bonsai_node_add_attachment($attachment, $node_wrapper) {
   }
 
   // Download and save the file.
-  $client = bonsai_get_client();
+  $client = _bonsai_message__mailgun_url__get_client($attachment->url);
+  if (!$client) {
+    watchdog(
+      'bonsai',
+      'No domain was detected for the attachment URL "@attachment_url" when trying to fetch the attachment "@attachment_name" belonging to the message of the node with ID "!node_id".',
+      array(
+        '!node_id' => $node_wrapper->getIdentifier(),
+        '@attachment_name' => $attachment->name,
+        '@attachment_url' => $attachment->url,
+      ),
+      WATCHDOG_ERROR
+    );
+    drupal_set_message(
+      t('The domain of the attachment you are trying to fetch is not supported. Contact the system administrator to properly set up the domain.'),
+      'error'
+    );
+    return;
+  }
+
+  $endpoint_url = _bonsai_message__mailgun_url__get_endpoint_url($attachment->url);
+
   try {
-    $response = $client->get($attachment->url);
+    /*
+     * @Issue(
+     *   "Use the SDK's Attachment API to feth events"
+     *   type="task"
+     *   priority="normal"
+     * )
+     */
+    $response = $client->get($endpoint_url);
   }
   catch (MissingEndpoint $e) {
     drupal_set_message(
@@ -1960,11 +2055,17 @@ function _bonsai_node_add_attachment($attachment, $node_wrapper) {
     );
     return;
   }
+
   if ($response->http_response_code !== 200) {
     watchdog(
       'bonsai',
-      "Unsuccessful response code $response->http_response_code when trying to download a message attachment from $attachment->url",
-      array(),
+      'Unsuccessful response code "@response_code" in a request for fetching the attachment "@attachment_name" belonging to the message of the node with ID "!node_id"',
+      array(
+      '!node_id'           => $node_wrapper->getIdentifier(),
+      '@attachment_name'   => $attachment->name,
+      '@response_code'     => $response->http_response_code,
+
+      ),
       WATCHDOG_ERROR
     );
     drupal_set_message(
