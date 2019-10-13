@@ -6,6 +6,8 @@
  */
 
 use Bonsai\RepositoryInterface;
+use Mailgun\Exception as MailgunException;
+use Mailgun\Exception\UnknownErrorException as MailgunUnknownErrorException;
 
 /**
  * @Issue(
@@ -79,27 +81,52 @@ function _bonsai_messages_send_page($node) {
   $images = $node_wrapper->bonsai_images->value();
   $attachments = array_merge($files, $images);
   $attachment_paths = array_map(function($attachment) {
-    return drupal_realpath($attachment['uri']);
+    return array('filePath' => drupal_realpath($attachment['uri']));
   }, $attachments);
 
-  // Send the message.
-  $response = $client->sendMessage(
-    $domain,
-    $message,
-    array(
-      'attachment' => $attachment_paths
-    )
-  );
+  if ($attachment_paths) {
+    $message['attachment'] = $attachment_paths;
+  }
 
-  // There's an error if the response is not 200.
-  if ($response->http_response_code !== 200) {
+  // Send the message.
+  try {
+    $response = $client->messages()->send(
+      $domain,
+      $message
+    );
+  }
+  catch (MailgunException $e) {
+    $watchdog_message = 'Mailgun returned an unsuccessful response code (@response_code) in a request for sending the message of node with ID "!node_id". Message: "@exception_message".';
+    $watchdog_params = array(
+      '!node_id'           => $node_wrapper->getIdentifier(),
+      '@response_code'     => $e->getCode(),
+      '@exception_message' => $e->getMessage(),
+    );
+    if (method_exists($e, 'getResponseBody')) {
+      $watchdog_message .=  ' The full body of the response is: "@response_body".';
+      $watchdog_params['@response_body']  = json_encode($e->getResponseBody());
+    }
     watchdog(
       'bonsai',
-      'Mailgun returned an unsuccessful response code (@response_code) in a request for sending the message of node with ID "!node_id". The full body of the response is: "@response_body"',
+      $watchdog_message,
+      $watchdog_params,
+      WATCHDOG_ERROR
+    );
+    drupal_set_message(
+      t('The email service provider returned an error while sending the email, please try again. If the problem persists, please contact the site administrator.'),
+      'error'
+    );
+
+    // Go back to the node page.
+    drupal_goto('node/' . $node_wrapper->getIdentifier());
+    return;
+  }
+  catch (MailgunUnknownErrorException $e) {
+    watchdog(
+      'bonsai',
+      'An unknown error has occurred in a request for sending the message of node with ID "!node_id".',
       array(
-        '!node_id'       => $node_wrapper->getIdentifier(),
-        '@response_code' => $response->http_response_code,
-        '@response_body' => $response->http_response_body,
+        '!node_id' => $node_wrapper->getIdentifier(),
       ),
       WATCHDOG_ERROR
     );
@@ -107,27 +134,32 @@ function _bonsai_messages_send_page($node) {
       t('The email service provider returned an error while sending the email, please try again. If the problem persists, please contact the site administrator.'),
       'error'
     );
+
+    // Go back to the node page.
+    drupal_goto('node/' . $node_wrapper->getIdentifier());
+    return;
   }
-  // There's something wrong if the response does not contain the email ID.
-  elseif (empty($response->http_response_body->id)) {
+
+  $message_id = $response->getId();
+
+  // There's something wrong if the response does not contain the email ID. This
+  // shouldn't happen if an exception is not thrown, but let's guard against
+  // this to avoid runtime errors.
+  if (!$message_id) {
     watchdog(
       'bonsai',
-      'Mailgun returned a successful response code (@response_code) in a request for sending the message of node with ID "!node_id", but did not return the ID of the email as expected. The full body of the response is: "@response_body"',
-      array(
-        '!node_id'       => $node_wrapper->getIdentifier(),
-        '@response_code' => $response->http_response_code,
-        '@response_body' => $response->http_response_body,
-      ),
+      'Mailgun returned a successful response in a request for sending the message of node with ID "!node_id", but did not return the ID of the email as expected.',
+      array('!node_id' => $node_wrapper->getIdentifier()),
       WATCHDOG_ERROR
     );
     drupal_set_message(
-      t('There was something wrong with the response from the email service provider and we could not validate that the email has been queue for delivery. Please contact the site administrator if it is important that the email is not sent twice, otherwise try again. If the problem persists, please contact the site administrator.'),
+      t('There was something wrong with the response from the email service provider and we could not validate that the email has been queued for delivery. Please contact the site administrator if it is important that the email is not sent twice, otherwise try again. If the problem persists, please contact the site administrator.'),
       'error'
     );
   }
   // Otherwise, the email was successfully queued for delivery.
   else {
-    $node_wrapper->bonsai_email_id = _bonsai_email_trim_email_id($response->http_response_body->id);
+    $node_wrapper->bonsai_email_id = _bonsai_email_trim_email_id($message_id);
 
     // We currently do not have confidence in extracting the date from the JSON
     // source of the email when delivery is confirmed. Until we verify the
