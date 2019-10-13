@@ -11,6 +11,7 @@ include_once 'includes/bonsai.field_formatter.inc';
 // External dependencies.
 use Bonsai\Mailgun\Repository;
 use Mailgun\Connection\Exceptions\MissingEndpoint;
+use Mailgun\Mailgun;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 // Internal dependencies.
@@ -993,7 +994,7 @@ function bonsai_get_client($api_key = NULL) {
     $api_key = variable_get('bonsai_mailgun_api_key');
   }
 
-  return new \Mailgun\Mailgun($api_key);
+  return Mailgun::create($api_key);
 }
 
 /**
