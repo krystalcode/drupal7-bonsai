@@ -545,7 +545,11 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
 
   // Create the reply-to quote and insert it into the new message's HTML body.
   $reply_to_message_id = $reply_to_node_wrapper->bonsai_email_id->value();
-  $reply_to_body_quote_header = 'On ' . $reply_to_date . ', ' . htmlspecialchars($reply_to_from) . ' wrote:';
+  $reply_to_body_quote_name = _bonsai_full_format_to_name($reply_to_from);
+  if (!$reply_to_body_quote_name) {
+    $reply_to_body_quote_name = _bonsai_full_format_to_email($reply_to_from);
+  }
+  $reply_to_body_quote_header = 'On ' . $reply_to_date . ', ' . $reply_to_body_quote_name . ' wrote:';
   $reply_to_body_quote = '<p></p><p></p><p>' . $reply_to_body_quote_header . '</p><blockquote cite="' . $reply_to_message_id . '" type="cite">' . $reply_to_body . '</blockquote>';
   $language = $form['bonsai_text_long2']['#language'];
   $form['bonsai_text_long2'][$language][0]['#format'] = 'bonsai_html';
