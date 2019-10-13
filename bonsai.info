@@ -124,3 +124,7 @@ features[variable][] = node_submitted_bonsai_message_email
 features[variable][] = pathauto_node_bonsai_message_email_pattern
 features[variable][] = pathauto_taxonomy_term_bonsai_labels_pattern
 features[views_view][] = bonsai_messages_email
+features_exclude[dependencies][bonsai] = bonsai
+features_exclude[variable][diff_enable_revisions_page_node_bonsai_message_email] = diff_enable_revisions_page_node_bonsai_message_email
+features_exclude[variable][diff_show_preview_changes_node_bonsai_message_email] = diff_show_preview_changes_node_bonsai_message_email
+features_exclude[variable][diff_view_mode_preview_node_bonsai_message_email] = diff_view_mode_preview_node_bonsai_message_email

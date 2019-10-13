@@ -121,10 +121,10 @@ function bonsai_strongarm() {
           'weight' => '18',
         ),
         'title' => array(
-          'weight' => '16',
+          'weight' => '14',
         ),
         'path' => array(
-          'weight' => '17',
+          'weight' => '15',
         ),
       ),
       'display' => array(
