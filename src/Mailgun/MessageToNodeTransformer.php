@@ -293,9 +293,9 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     // it before sending it. Add this to the corresponding field as well.
     $node_wrapper->bonsai_text_long = $message->{'body-plain'};
 
-    // Add the Sent label. The node message is only added to the Sent folder
+    // Add the Sent label. The node message is only moved to the Sent folder
     // (via the Sent label) only after it has successfully been
-    // delivered. Otherwise it stays on the Drafts folder, with a notcie that it
+    // delivered. Otherwise it stays on the Outbox folder, with a notice that it
     // is awaiting for delivery.
     _bonsai_message_add_labels($node_wrapper, array('Sent'));
 
