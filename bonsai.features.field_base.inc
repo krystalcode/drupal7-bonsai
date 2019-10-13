@@ -237,6 +237,23 @@ function bonsai_field_default_field_bases() {
     'type' => 'json',
   );
 
+  // Exported field_base: 'bonsai_json2'.
+  $field_bases['bonsai_json2'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'bonsai_json2',
+    'indexes' => array(),
+    'locked' => 0,
+    'module' => 'jsonb',
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'json',
+  );
+
   // Exported field_base: 'bonsai_labels_ref'.
   $field_bases['bonsai_labels_ref'] = array(
     'active' => 1,

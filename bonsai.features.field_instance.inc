@@ -493,7 +493,7 @@ function bonsai_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 11,
+      'weight' => 10,
     ),
   );
 
@@ -814,7 +814,47 @@ function bonsai_field_default_field_instances() {
         'ui_edit' => 'hide',
       ),
       'type' => 'jsonb_textarea',
-      'weight' => 15,
+      'weight' => 12,
+    ),
+  );
+
+  // Exported field_instance: 'node-bonsai_message_email-bonsai_json2'.
+  $field_instances['node-bonsai_message_email-bonsai_json2'] = array(
+    'bundle' => 'bonsai_message_email',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'module' => 'jsonb',
+        'settings' => array(),
+        'type' => 'jsonb_text',
+        'weight' => 16,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'bonsai_json2',
+    'label' => 'Raw Data',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'jsonb',
+      'settings' => array(
+        'ui_edit' => 'hide',
+      ),
+      'type' => 'jsonb_textarea',
+      'weight' => 13,
     ),
   );
 
@@ -1105,7 +1145,7 @@ function bonsai_field_default_field_instances() {
         'year_range' => '-3:+3',
       ),
       'type' => 'date_text',
-      'weight' => 12,
+      'weight' => 11,
     ),
   );
 
@@ -1332,6 +1372,7 @@ function bonsai_field_default_field_instances() {
   t('In Reply To');
   t('JSON');
   t('Labels');
+  t('Raw Data');
   t('Remote ID');
   t('Subject');
   t('To');
