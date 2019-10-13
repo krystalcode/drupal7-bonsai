@@ -803,10 +803,6 @@ function bonsai_views_default_views() {
     t('<div class="alert alert-warning"><span class="fa fa-exclamation"></span> There are no messages in the Spam folder at the moment.</div>'),
     t('Labels'),
     t('<div class="alert alert-warning"><span class="fa fa-exclamation"></span> There are no messages with the selected labels at the moment.</div>'),
-    t('Labels'),
-    t('Product Categories'),
-    t('Product Labels'),
-    t('Blog Labels'),
     t('Outbox'),
     t('<div class="alert alert-warning"><span class="fa fa-exclamation"></span> There are no messages in the Outbox folder at the moment. The Outbox folder contains messages that have been queued for delivery.</div>'),
   );
