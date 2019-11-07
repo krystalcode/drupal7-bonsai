@@ -268,7 +268,8 @@ class MessageToNodeTransformer implements MessageTransformerInterface {
     if ($node_wrapper->bonsai_email_id->value() !== _bonsai_email_trim_email_id($message->{'Message-Id'})) {
       throw new \Exception(
         sprintf(
-          'Trying to update a node (ID: "%s") with the information of an email that is not associated with it (ID: "%s").',
+          'Trying to update a node (ID: "%s", email ID: "%s") with the information of an email that is not associated with it (ID: "%s").',
+          $node_wrapper->getIdentifier(),
           $node_wrapper->bonsai_email_id->value(),
           _bonsai_email_trim_email_id($message->{'Message-Id'})
         )
