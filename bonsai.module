@@ -435,17 +435,34 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
   }
 
   // Display an info message showing the email message that the current is a
-  // reply to. We are hiding the autocomplet for the In Reply To field via
+  // reply to. We are hiding the autocomplete for the In Reply To field via
   // 'entityreference_prepopulate' module.
   $language = $form['bonsai_message_email_ref']['#language'];
+  /**
+   * @Issue(
+   *   "Should we not be taking the Reply To ID from the query parameter?"
+   *   type="bug"
+   *   priority="low"
+   * )
+   */
   $reply_to_id = $form['bonsai_message_email_ref'][$language][0]['target_id']['#default_value'];
   if ($reply_to_id) {
     // The value in entityreference field is given as 'Title (id)'. We need to
     // extract the id so that can load the node and display its title as a
-    // link. We start looking for a parenthesis from the end, just in case the
-    // title contains a parenthesis.
-    $id_start = strpos($reply_to_id, '(');
-    $reply_to_id = substr($reply_to_id, $id_start+1, -1);
+    // link.
+    if (preg_match("/.+\s\(([^\)]+)\)/", $reply_to_id, $matches)) {
+      $reply_to_id = $matches[1];
+    }
+    if (!is_numeric($reply_to_id)) {
+      watchdog(
+        'bonsai',
+        'Could not determine the Reply To node id from the following form element: @element',
+        array(
+          '@element' => $form['bonsai_message_email_ref'][$language][0]['target_id']['#default_value'],
+        ),
+        WATCHDOG_ERROR
+      );
+    }
     $reply_to_node = node_load($reply_to_id);
     $uri = entity_uri('node', $reply_to_node);
     $uri['options'] += array('attributes' => array('target' => '_blank'));
