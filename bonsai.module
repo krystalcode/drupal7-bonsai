@@ -704,7 +704,7 @@ function bonsai_node_presave($node) {
  * Implements hook_cron().
  *
  * Defines a cron item for regularly fetching incoming or delivered messages
- * from the email service provider.
+ * from the email service provider, and from purging old messages.
  */
 function bonsai_cron() {
   $domains = variable_get('bonsai_domains');
@@ -718,6 +718,8 @@ function bonsai_cron() {
     _bonsai_cron__bonsai_messages_incoming($domain, $api_key);
     _bonsai_cron__bonsai_messages_delivered($domain, $api_key);
   }
+
+  _bonsai_cron__bonsai_messages_purge();
 }
 
 /**
@@ -986,6 +988,48 @@ function _bonsai_cron__bonsai_messages_delivered($domain = NULL, $api_key = NULL
       'message' => json_encode($message),
     );
     $queue->createItem($update_info);
+  }
+}
+
+/**
+ * Implements hook_cron via bonsai_cron().
+ *
+ * Deletes old messages based on configuration. Events associated with the
+ * deleted messages will be deleted as well, if the Event submodule is enabled.
+ */
+function _bonsai_cron__bonsai_messages_purge() {
+  if (!variable_get('bonsai_cron_messages_purge_status', FALSE)) {
+    return;
+  }
+  // The variable must contain an array with the IDs of the taxonomy terms for
+  // the folders. It should normally contain the ID of the Trash folder, but
+  // more folders can be configured to be purged.
+  $folder_ids = variable_get('bonsai_cron_messages_purge_folders');
+  if (!$folder_ids) {
+    throw new \RuntimeException(
+      'The IDs of the folders to purge must be provided.'
+    );
+  }
+  // The age must contain a number of seconds and it is the minimum age of email
+  // messages to delete. For example, if 1 year is provided in seconds
+  // (31557600), all emails older than 1 year will be deleted. The age is
+  // calculated based on the `changed` and not the `created` property i.e. when
+  // they were last updated. The reasoning is that if the email has been
+  // recently updated it may still be relevant. Also, the time will be counted
+  // since it was moved to the Trash folder - or later, while if we would use
+  // the time the node was created we would be counting time before it was moved
+  // to the Trash folder - which would be incorrect.
+  $age = variable_get('bonsai_cron_messages_purge_age');
+  if (!$age) {
+    throw new \RuntimeException(
+      'The minimum age of the messages to purge must be provided.'
+    );
+  }
+  // Maximum number of node messages to delete per cron run.
+  $limit = variable_get('bonsai_cron_messages_purge_limit', 50);
+
+  foreach ($folder_ids as $folder_id) {
+    _bonsai_purge_folder($folder_id, $age, $limit);
   }
 }
 
@@ -1538,6 +1582,74 @@ function _bonsai_message_node_by_email_id($email_id, $access_bypass = FALSE) {
   return FALSE;
 }
 
+/**
+ * Returns all message nodes for the given folder ID.
+ *
+ * Tailored mostly for getting the messages to purge for a folder.
+ *
+ * @param int|string $label_id
+ *   The ID of the label.
+ * @param array $options
+ *   An associative array of options that determine which messages will be
+ *   loaded. Support options are:
+ *   - changed_max: (int, optional) When given, only nodes that their `changed`
+ *     property has a value lower than `changed_max` will be returned.
+ *   - limit: (int, optional) The maximum number of nodes to return.
+ *   - order_by: (string, optional, defaults to `changed`) The property to use
+ *     for sorting the results. Field sorting is currently not supported.
+ *   - order_direction: (string, optional, defaults to `ASC`) The sorting order.
+ * @param bool $access_bypass
+ *   Whether or not to bypass access control in the query. Useful when calling
+ *   within cron or queue tasks that should have access to all nodes.
+ *
+ * @return array
+ *   An array containing the IDs of the email message nodes that are associated
+ *   with the given label and that match the given options.
+ */
+function _bonsai_message_node_ids_by_label_id($label_id, array $options = [], $access_bypass = FALSE) {
+  $options = array_merge(
+    array(
+      'changed_max' => NULL,
+      'limit' => NULL,
+      // Only sorting by properties supported.
+      'order_by' => 'changed',
+      'order_direction' => 'ASC',
+    ),
+    $options
+  );
+
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'bonsai_message_email')
+    ->fieldCondition('bonsai_labels_ref', 'tid', $label_id);
+  if ($options['changed_max'] !== NULL) {
+    $query->propertyCondition('changed', $options['changed_max'], '<=');
+  }
+  if ($options['limit'] !== NULL) {
+    $query->range(0, $options['limit']);
+  }
+
+  $query->propertyOrderBy(
+    $options['order_by'],
+    $options['order_direction']
+  );
+
+  // Queue processing via cron runs as anonymous users. They are therefore
+  // always denied access to view messages, published or unpublished. In such
+  // cases we want to allow bypassing access control.
+  if ($access_bypass) {
+    $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+  }
+
+  $result = $query->execute();
+  if (empty($result['node'])) {
+    return [];
+  }
+
+  return array_keys($result['node']);
+}
+
 function _bonsai_email_trim_email_id($email_id) {
   return trim($email_id, '<>');
 }
@@ -1674,6 +1786,43 @@ function _bonsai_message_add_labels($node_wrapper, $labels) {
   $new_terms = $current_terms + $new_terms;
 
   $node_wrapper->bonsai_labels_ref->set($new_terms);
+}
+
+/**
+ * Deletes email messages for the given folder.
+ *
+ * @param int|string $folder_id
+ *   The ID of the folder that the messages must belong to.
+ * @param int $age
+ *   The minimum age of the messages to delete, in seconds, and calculated based
+ *   on the time the entity was last updated.
+ * @param int $limit
+ *   The maximum number of messages to delete.
+ */
+function _bonsai_purge_folder($folder_id, $age, $limit) {
+  $folder = taxonomy_term_load($folder_id);
+  if (!$folder) {
+    throw new \RuntimeException(sprintf(
+      'The taxonomy term with ID "%s" was not found.',
+      $folder_id
+    ));
+  }
+  if (!_bonsai_label_is_folder($folder)) {
+    throw new \RuntimeException(sprintf(
+      'Cannot purge messages for taxonomy term with ID "%s" because the term is not a folder.',
+      $folder_id
+    ));
+  }
+
+  $node_ids = _bonsai_message_node_ids_by_label_id(
+    $folder_id,
+    [
+      'changed_max' => time() - $age,
+      'limit' => $limit,
+    ],
+    TRUE
+  );
+  node_delete_multiple($node_ids);
 }
 
 function _bonsai_full_format_to_email($email) {

@@ -80,6 +80,20 @@ function bonsai_event_permission() {
   return $permissions;
 }
 
+/**
+ * Implements hook_node_delete().
+ *
+ * Delete all events associated with the deleted message.
+ */
+function bonsai_event_node_delete($node) {
+  if ($node->type !== 'bonsai_message_email') {
+    return;
+  }
+
+  $node_ids = _bonsai_event_node_ids_by_message_id($node->nid, TRUE);
+  node_delete_multiple($node_ids);
+}
+
 function _bonsai_event_cron__fetch_events($domain = NULL, $api_key = NULL) {
   // Fetch new events from the service provider.
   if (!$domain) {
@@ -235,7 +249,7 @@ function _bonsai_event_node_id_by_event_id($event_id, $access_bypass = FALSE) {
   ;
 
   // Queue processing via cron runs as anonymous users. They are therefore
-  // always denied access to view messages, published or unpublished. In such
+  // always denied access to view nodes, published or unpublished. In such
   // cases we want to allow bypassing access control.
   if ($access_bypass) {
     $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
@@ -258,6 +272,47 @@ function _bonsai_event_node_by_event_id($event_id, $access_bypass = FALSE) {
   }
 
   return FALSE;
+}
+
+function _bonsai_event_node_ids_by_message_id($message_id, $access_bypass = FALSE) {
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'bonsai_message_event')
+    ->fieldCondition('bonsai_message_email_ref', 'target_id', $message_id)
+  ;
+
+  // Queue processing via cron runs as anonymous users. They are therefore
+  // always denied access to view messages, published or unpublished. In such
+  // cases we want to allow bypassing access control.
+  if ($access_bypass) {
+    $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+  }
+
+  $result = $query->execute();
+
+  if (empty($result['node'])) {
+    return [];
+  }
+
+  return array_keys($result['node']);
+}
+
+function _bonsai_event_nodes_by_message_id($message_id, $access_bypass = FALSE) {
+  $node_ids = _bonsai_event_node_ids_by_message_id($message_id, $access_bypass);
+
+  if (!$node_ids) {
+    return [];
+  }
+
+  return array_reduce(
+    $node_ids,
+    function ($carry, $node_id) {
+      $carry[$node_id] = node_load($node_id);
+      return $carry;
+    },
+    []
+  );
 }
 
 function _bonsai_event_failed_status_from_json($event) {
