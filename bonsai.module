@@ -412,7 +412,6 @@ function bonsai_form_bonsai_message_email_node_form_alter(&$form, &$form_state, 
 
   // The following fields are automatically set, either upon creation or when
   // the email will actually be sent.
-  $form['og_bonsai_emails_ref']['#access'] = FALSE;
   $form['bonsai_email_id']['#access']      = FALSE;
   $form['bonsai_timestamp']['#access']     = FALSE;
   $form['bonsai_json']['#access']          = FALSE;
