@@ -87,6 +87,7 @@ features[field_instance][] = node-bonsai_message_email-bonsai_users_ref2
 features[field_instance][] = node-bonsai_message_email-bonsai_users_ref3
 features[filter][] = bonsai_html
 features[filter][] = bonsai_plain_html
+features[image][] = 1080
 features[node][] = bonsai_message_email
 features[taxonomy][] = bonsai_labels
 features[user_permission][] = bonsai fetch attachments

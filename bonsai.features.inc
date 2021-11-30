@@ -25,6 +25,31 @@ function bonsai_views_api($module = NULL, $api = NULL) {
 }
 
 /**
+ * Implements hook_image_default_styles().
+ */
+function bonsai_image_default_styles() {
+  $styles = array();
+
+  // Exported image style: 1080.
+  $styles[1080] = array(
+    'label' => 1080,
+    'effects' => array(
+      21 => array(
+        'name' => 'image_scale',
+        'data' => array(
+          'width' => 1080,
+          'height' => '',
+          'upscale' => 0,
+        ),
+        'weight' => 1,
+      ),
+    ),
+  );
+
+  return $styles;
+}
+
+/**
  * Implements hook_node_info().
  */
 function bonsai_node_info() {

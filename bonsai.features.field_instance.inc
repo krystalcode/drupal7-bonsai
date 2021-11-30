@@ -738,7 +738,7 @@ function bonsai_field_default_field_instances() {
         'settings' => array(
           'display_caption' => 1,
           'image_link' => '',
-          'image_style' => '',
+          'image_style' => 1080,
         ),
         'type' => 'bonsai_bootstrap_thumbnail',
         'weight' => 21,
